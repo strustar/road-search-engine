@@ -1,0 +1,66 @@
+# Docker 빌드 시 제외할 파일들
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 가상환경
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 로그 파일
+*.log
+logs/
+
+# 임시 파일
+*.tmp
+*.temp
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 배포 가이드
+*.md
+
+# 테스트 파일
+test_*
+*_test.py
+
+# 아카이브 (이미 삭제됨)
+archive/
+
+# 백업 파일
+*_backup.*
+*_old.*
+
+# 이미지 복사본 (이미 삭제됨)
+image copy*

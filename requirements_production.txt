@@ -1,0 +1,35 @@
+# 도로설계 문서 검색 시스템 - 프로덕션 의존성
+# 배포용 최소 필수 패키지만 포함
+
+# 웹 프레임워크
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# 데이터 처리
+numpy==1.24.3
+pandas==2.0.3
+
+# 벡터 검색 및 임베딩
+faiss-cpu==1.7.4
+sentence-transformers==2.2.2
+transformers==4.35.2
+
+# PDF 처리
+PyMuPDF==1.23.8
+Pillow==10.1.0
+
+# 텍스트 처리
+langchain==0.0.340
+langchain-community==0.0.10
+
+# 유틸리티
+pydantic==2.5.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+
+# 로깅 및 모니터링
+psutil==5.9.6
+tqdm==4.66.1
+
+# CORS 및 미들웨어
+starlette==0.27.0

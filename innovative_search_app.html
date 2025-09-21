@@ -1,0 +1,4554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 AI-Powered Road Design Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #c7d2fe;
+            --text-muted: #94a3b8;
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-medium: 0 16px 64px rgba(0, 0, 0, 0.5);
+            --shadow-strong: 0 24px 96px rgba(0, 0, 0, 0.6);
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --border-radius-xl: 24px;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--dark-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-weight: 400;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* 배경 애니메이션 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 상단 컨트롤 바 */
+        .top-control-bar {
+            background: var(--glass-bg);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 12px 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-soft);
+            z-index: 100;
+            position: sticky;
+            top: 0;
+            border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+            margin: 0 12px;
+            margin-top: 12px;
+        }
+
+        .control-sections {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 24px;
+            align-items: center;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .control-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 라디오 버튼 스타일 */
+        .radio-group {
+            display: flex;
+            gap: 4px;
+            background: var(--glass-bg);
+            padding: 6px;
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .radio-option {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius-md);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .radio-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: var(--transition-smooth);
+            z-index: -1;
+        }
+
+        .radio-option.active {
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .radio-option.active::before {
+            opacity: 1;
+        }
+
+        .radio-option:hover:not(.active) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-1px);
+        }
+
+        /* 숫자 선택 버튼 */
+        .number-selector {
+            display: flex;
+            gap: 4px;
+            background: rgba(79, 209, 199, 0.1);
+            padding: 3px;
+            border-radius: 10px;
+            border: 1px solid rgba(79, 209, 199, 0.3);
+        }
+
+        .number-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: #e2e8f0;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-width: 32px;
+        }
+
+        .number-btn.active {
+            background: linear-gradient(45deg, #4fd1c7, #06d6a0);
+            color: white;
+            box-shadow: 0 2px 6px rgba(79, 209, 199, 0.3);
+        }
+
+        .number-btn:hover:not(.active) {
+            background: rgba(79, 209, 199, 0.15);
+            color: #4fd1c7;
+        }
+
+        /* 토글 스위치 */
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: rgba(79, 209, 199, 0.2);
+            border-radius: 12px;
+            border: 1px solid rgba(79, 209, 199, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(45deg, #4fd1c7, #06d6a0);
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(24px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            flex: 1;
+            gap: 24px;
+            height: calc(100vh - 120px);
+            padding: 0 24px 24px 24px;
+        }
+
+        /* 좌측 검색 패널 */
+        .left-panel {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 24px;
+            border-radius: var(--border-radius-xl);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-medium);
+            position: relative;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            opacity: 0.08;
+            border-radius: var(--border-radius-xl);
+            z-index: -1;
+        }
+
+        .right-panel {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: var(--border-radius-xl);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-medium);
+            position: relative;
+            z-index: -1;
+        }
+
+        .right-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--secondary-gradient);
+            opacity: 0.05;
+            border-radius: var(--border-radius-xl);
+            z-index: -1;
+        }
+
+        /* 스크롤 PDF 컨테이너 스타일 */
+        .scroll-pdf-container {
+            height: calc(100% - 60px);
+            background: #ffffff;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .scroll-pdf-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scroll-pdf-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .scroll-pdf-container::-webkit-scrollbar-thumb {
+            background: #4fd1c7;
+            border-radius: 4px;
+        }
+
+        .scroll-pdf-container::-webkit-scrollbar-thumb:hover {
+            background: #06d6a0;
+        }
+
+        .header {
+            background: var(--glass-bg);
+            padding: 24px 32px;
+            text-align: center;
+            border-bottom: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            position: relative;
+            box-shadow: var(--shadow-soft);
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+            margin-bottom: 24px;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--accent-gradient);
+            opacity: 0.1;
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+            pointer-events: none;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.2); }
+        }
+
+        /* 추가 애니메이션 효과 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 페이지 로드 애니메이션 */
+        .app-container {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .left-panel {
+            animation: slideInLeft 0.6s ease-out 0.2s both;
+        }
+
+        .right-panel {
+            animation: slideInRight 0.6s ease-out 0.4s both;
+        }
+
+        .result-item {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* 호버 효과 강화 */
+        .stat-card:hover {
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        /* 스크롤바 스타일링 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--glass-bg);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-gradient);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(248, 250, 252, 0.1);
+            padding: 12px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            border: 2px solid rgba(79, 209, 199, 0.25);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(79, 209, 199, 0.12), rgba(6, 214, 160, 0.12));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(79, 209, 199, 0.6);
+            box-shadow: 0 12px 30px rgba(79, 209, 199, 0.25);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .search-container {
+            max-width: 900px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+
+        .search-input {
+            width: 100%;
+            padding: 20px 80px 20px 28px;
+            border: none;
+            border-radius: var(--border-radius-xl);
+            background: rgba(255, 255, 255, 0.18);
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 500;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-soft);
+            position: relative;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: rgba(79, 172, 254, 0.8);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.15), var(--shadow-medium);
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--accent-gradient);
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius-lg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition-bounce);
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .search-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        /* 고급 옵션 스타일 */
+        .search-options {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .advanced-options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--glass-border);
+            border-radius: 4px;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked {
+            background: var(--accent-gradient);
+            border-color: transparent;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .select-label {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .context-select {
+            padding: 8px 12px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: var(--transition-smooth);
+        }
+
+        .context-select:focus {
+            outline: none;
+            border-color: rgba(79, 172, 254, 0.8);
+            box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.15);
+        }
+
+        .context-select option {
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--text-primary);
+        }
+
+        /* 반경 버튼 스타일 */
+        .radius-btn {
+            padding: 6px 12px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid rgba(79, 209, 199, 0.3);
+            background: rgba(79, 209, 199, 0.1);
+            color: #a0aec0;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            white-space: nowrap;
+        }
+
+        .radius-btn:hover {
+            background: rgba(79, 209, 199, 0.2);
+            border-color: rgba(79, 209, 199, 0.5);
+            color: #e2e8f0;
+        }
+
+        .radius-btn.active {
+            background: rgba(79, 209, 199, 0.3);
+            border-color: #4fd1c7;
+            color: #4fd1c7;
+            font-weight: 600;
+        }
+
+        /* 문서 필터 섹션 스타일 */
+        .document-filter-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-header {
+            margin-bottom: 16px;
+        }
+
+        .filter-label {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 16px;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius-md);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(79, 172, 254, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: var(--accent-gradient);
+            border-color: transparent;
+            color: white;
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* 파일 목록 컨테이너 */
+        .file-list-container {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .file-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .file-list-title {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .close-file-list {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: var(--transition-smooth);
+        }
+
+        .close-file-list:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .file-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-sm);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(79, 172, 254, 0.3);
+        }
+
+        /* 필터 컨테이너 스타일 */
+        .filter-container {
+            position: relative;
+            min-height: 60px; /* 최소 높이 고정 */
+        }
+
+        /* 고정 위치 파일 목록 스타일 */
+        .fixed-file-list {
+            position: absolute !important;
+            top: 100% !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: rgba(255, 255, 255, 0.98) !important;
+            border: 2px solid rgba(79, 172, 254, 0.4) !important;
+            border-radius: var(--border-radius-md) !important;
+            backdrop-filter: blur(10px) !important;
+            overflow: visible !important;
+            animation: slideInDown 0.3s ease-out !important;
+            z-index: 9999999 !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+            margin-top: 8px !important;
+            padding: 16px !important;
+        }
+
+        .fixed-file-list .file-list-info {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 20px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .fixed-file-list .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .fixed-file-list .info-label {
+            color: #666666;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap !important;
+        }
+
+        .fixed-file-list .info-value {
+            color: #333333;
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap !important;
+        }
+
+        .fixed-file-list .file-list-content {
+            padding: 12px 16px;
+            max-height: 160px; /* 정확히 5개 파일 높이 (32px * 5) */
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* 스크롤바 스타일링 */
+        .fixed-file-list .file-list-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .fixed-file-list .file-list-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        .fixed-file-list .file-list-content::-webkit-scrollbar-thumb {
+            background: rgba(79, 172, 254, 0.6);
+            border-radius: 3px;
+        }
+
+        .fixed-file-list .file-list-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(79, 172, 254, 0.8);
+        }
+
+        .fixed-file-list .file-list-title {
+            color: #333333;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .fixed-file-list .file-items {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .fixed-file-list .file-item {
+            padding: 8px 12px !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+            border-radius: var(--border-radius-sm) !important;
+            color: #333333 !important;
+            font-size: 13px !important;
+            transition: var(--transition-smooth) !important;
+            margin-bottom: 3px !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+            height: 32px !important; /* 한 줄로 표시하기 위한 높이 */
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+        }
+
+        .fixed-file-list .file-item:hover {
+            background: rgba(79, 172, 254, 0.1);
+            border-color: rgba(79, 172, 254, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .fixed-file-list .file-item .file-name {
+            font-weight: 700 !important;
+            color: #1a1a1a !important;
+            margin-bottom: 0 !important;
+            font-size: 13px !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            flex: 1 !important;
+            margin-right: 8px !important;
+        }
+
+        .fixed-file-list .file-item .file-details {
+            font-size: 11px !important;
+            color: #555555 !important;
+            opacity: 1 !important;
+            font-weight: 500 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            line-height: 1.2 !important;
+            flex-shrink: 0 !important;
+        }
+
+        .file-select-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .file-select-label {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .file-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius-md);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            backdrop-filter: blur(10px);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .file-select:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(79, 172, 254, 0.5);
+        }
+
+        .file-select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(79, 172, 254, 0.7);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .file-select option {
+            background: #1a1a2e;
+            color: var(--text-primary);
+            padding: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes slideInDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-modes {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(45deg, #4fd1c7, #06d6a0);
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 48px 0;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--glass-border);
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--accent-gradient), transparent);
+            animation: spin 1.2s linear infinite;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+
+        .loading-spinner::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            background: var(--glass-bg);
+            border-radius: 50%;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .result-item {
+            background: var(--glass-bg);
+            margin: 16px 0;
+            padding: 24px;
+            border-radius: var(--border-radius-xl);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: var(--transition-smooth);
+            z-index: -1;
+        }
+
+        .result-item:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-medium);
+            border-color: rgba(79, 172, 254, 0.5);
+        }
+
+        .result-item:hover::before {
+            opacity: 0.05;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 16px;
+        }
+
+        .result-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--success-gradient);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: var(--border-radius-lg);
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: var(--shadow-soft);
+            white-space: nowrap;
+        }
+
+        .result-content {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            font-weight: 400;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 14px;
+            border-radius: var(--border-radius-md);
+            border-left: 4px solid rgba(79, 172, 254, 0.6);
+        }
+
+        .result-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .meta-badge {
+            background: var(--glass-bg);
+            padding: 6px 10px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .meta-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+        }
+
+        .result-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: var(--border-radius-lg);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: var(--transition-bounce);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pdf-btn {
+            background: var(--primary-gradient);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .pdf-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .highlight-btn {
+            background: var(--warning-gradient);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .highlight-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .highlight-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-content {
+            background: var(--glass-bg);
+            padding: 32px;
+            border-radius: var(--border-radius-xl);
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-strong);
+            border: 2px solid #4fd1c7;
+        }
+
+        .modal-content h3 {
+            color: #4fd1c7;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 30px;
+            color: #4fd1c7;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #06d6a0;
+        }
+
+        /* 테이블 스타일 개선 */
+        .results-table {
+            overflow-x: auto;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(16px);
+            margin-top: 24px;
+        }
+
+        .results-table table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #f8fafc;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .results-table th {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 16px 14px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(56, 189, 248, 0.6);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            color: #f8fafc;
+            font-size: 14px;
+            letter-spacing: 0.025em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .results-table td {
+            padding: 14px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+            border-right: 1px solid rgba(148, 163, 184, 0.15);
+            vertical-align: top;
+            transition: all 0.2s ease;
+        }
+
+        .results-table tr:hover {
+            background-color: rgba(56, 189, 248, 0.08) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .page-badge {
+            background: #4fd1c7;
+            color: #1a202c;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr !important;
+            }
+
+            .right-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-control-bar {
+                padding: 12px 16px;
+            }
+
+            .control-sections {
+                grid-template-columns: 1fr !important;
+                gap: 16px;
+            }
+
+            .control-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .radio-group {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .number-selector {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr !important;
+                height: calc(100vh - 140px) !important;
+            }
+
+            .left-panel {
+                padding: 16px;
+            }
+
+            .results-table {
+                font-size: 11px;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 8px 6px;
+            }
+
+            .search-options {
+                grid-template-columns: 1fr !important;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-control-bar {
+                padding: 8px 12px;
+            }
+
+            .radio-option, .number-btn {
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+
+            .control-label {
+                font-size: 11px;
+            }
+
+            .left-panel {
+                padding: 12px;
+            }
+
+            .search-input {
+                font-size: 14px;
+                padding: 12px 16px;
+            }
+
+            .search-btn {
+                padding: 10px 14px;
+                font-size: 14px;
+            }
+        }
+
+        /* 스크롤바 스타일 */
+        .results-table::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .results-table::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 6px;
+        }
+
+        .results-table::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #38bdf8, #06b6d4);
+            border-radius: 6px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .results-table::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #0ea5e9, #0891b2);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(56, 189, 248, 0.3);
+            border-radius: 50%;
+            border-top-color: #38bdf8;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 추가 애니메이션 및 마이크로인터랙션 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .results-table tr {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .results-table tr:nth-child(even) {
+            animation-delay: 0.1s;
+        }
+
+        .results-table tr:nth-child(odd) {
+            animation-delay: 0.05s;
+        }
+
+        .header {
+            animation: slideInLeft 0.8s ease forwards;
+        }
+
+        .search-container {
+            animation: fadeInUp 0.6s ease forwards;
+            animation-delay: 0.2s;
+        }
+
+        /* 접근성 개선 */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+            font-size: 18px;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        @media (max-width: 1200px) {
+            .left-panel, .right-panel {
+                width: 50%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                gap: 16px;
+                padding: 0 16px 16px 16px;
+            }
+
+            .left-panel, .right-panel {
+                width: 100%;
+            }
+
+            .left-panel {
+                border-bottom: 1px solid var(--glass-border);
+                border-right: none;
+                padding: 24px;
+            }
+
+            .right-panel {
+                border-left: none;
+                min-height: 400px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+                letter-spacing: -0.01em;
+            }
+
+            .stats {
+                gap: 15px;
+            }
+
+            .search-input {
+                font-size: 16px;
+                padding: 20px 60px 20px 24px;
+                border-radius: var(--border-radius-lg);
+            }
+
+            .result-item {
+                padding: 24px;
+            }
+
+            .viewer-container {
+                padding: 16px;
+            }
+
+            .search-modes {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .mode-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .control-sections {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .top-control-bar {
+                margin: 8px;
+                padding: 12px 16px;
+            }
+
+            .advanced-options-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .option-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            .search-container {
+                margin: 20px auto;
+            }
+
+            .viewer-container {
+                padding: 10px;
+            }
+
+            .viewer-header h3 {
+                font-size: 1.2rem;
+            }
+        }
+
+        .pdf-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            z-index: -1;
+        }
+
+        .pdf-viewer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-pdf {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 16px;
+        }
+
+        .highlight {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #1a202c;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* 문서 필터 스타일 */
+        .doc-filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 209, 199, 0.3);
+        }
+
+        .doc-filter-btn.active {
+            background: linear-gradient(45deg, #4fd1c7, #06d6a0) !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .doc-item:hover {
+            background: rgba(79, 209, 199, 0.1) !important;
+            cursor: pointer;
+        }
+
+        .document-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .document-list::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 4px;
+        }
+
+        .document-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #4fd1c7, #06d6a0);
+            border-radius: 4px;
+        }
+
+        /* 우측 패널 스타일링 */
+        .viewer-container {
+            padding: 32px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, rgba(15, 20, 25, 0.8) 0%, rgba(30, 41, 59, 0.9) 100%);
+            border-radius: 20px;
+            margin: 16px;
+            border: 1px solid rgba(79, 209, 199, 0.3);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .viewer-header {
+            margin-bottom: 24px;
+            padding: 24px 28px;
+            background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%);
+            border-radius: 20px;
+            border: 2px solid rgba(79, 209, 199, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(16px);
+            position: relative;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .viewer-header h3 {
+            color: #f8fafc;
+            margin: 0 0 12px 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4fd1c7, #06d6a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .viewer-header p {
+            color: #e2e8f0;
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .viewer-content {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%);
+            border: 2px solid rgba(79, 209, 199, 0.2);
+            border-radius: 16px;
+            overflow: auto;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            z-index: -1;
+        }
+
+        .pdf-container {
+            background: #ffffff;
+            width: 100%;
+            height: 100%;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 400px;
+            color: #64748b;
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .viewer-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .viewer-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+        }
+
+        .pdf-iframe-container {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .pdf-embed-container {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .pdf-embed-container embed {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+        }
+
+        .pdf-image-container {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+        }
+
+        .pdf-image-container img {
+            background: #ffffff !important;
+            transition: transform 0.3s ease;
+        }
+
+        .result-preview {
+            margin: 15px 0;
+            text-align: center;
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .result-preview img {
+            max-width: 100%;
+            height: auto;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: #ffffff;
+        }
+
+        .unified-viewer-toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 10px;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .unified-viewer-toolbar button {
+            padding: 8px 12px;
+            background: #4fd1c7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .unified-viewer-toolbar button:hover {
+            background: #38b2ac;
+            transform: translateY(-1px);
+        }
+
+        .unified-viewer-toolbar button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .unified-pdf-container {
+            scrollbar-width: thin;
+            scrollbar-color: #4fd1c7 #f7fafc;
+        }
+
+        .unified-pdf-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .unified-pdf-container::-webkit-scrollbar-track {
+            background: #f7fafc;
+        }
+
+        .unified-pdf-container::-webkit-scrollbar-thumb {
+            background: #4fd1c7;
+            border-radius: 4px;
+        }
+
+        .page-navigation button {
+            padding: 6px 12px;
+            background: #4fd1c7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .page-navigation button:hover:not(:disabled) {
+            background: #38b2ac;
+        }
+
+        .page-navigation button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .viewer-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            align-items: center;
+        }
+
+        .viewer-toolbar button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #4fd1c7;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .viewer-toolbar button:hover {
+            background: #06d6a0;
+            transform: translateY(-1px);
+        }
+
+        .viewer-info {
+            font-size: 13px;
+            color: #718096;
+            margin-left: auto;
+        }
+
+        /* 통합 헤더 스타일 */
+        .unified-header {
+            background: rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 24px 32px;
+            margin: 0 16px;
+            margin-top: 16px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .header-main {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .title-section {
+            flex: 1;
+        }
+
+        .main-title {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .title-icon {
+            font-size: 36px;
+            filter: drop-shadow(0 2px 4px rgba(79, 172, 254, 0.3));
+        }
+
+        .subtitle {
+            margin: 8px 0 0 0;
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .status-badge {
+            background: rgba(79, 172, 254, 0.1);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            border-radius: var(--border-radius-lg);
+            padding: 12px 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .badge-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .badge-label {
+            color: var(--accent-gradient);
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .badge-value {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 통합 컨트롤 섹션 */
+        .unified-controls {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: visible;
+        }
+
+        .control-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+            align-content: start;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 60px;
+            justify-content: flex-start;
+        }
+
+        .control-label {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        /* 모드 선택기 */
+        .mode-selector {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-md);
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .mode-btn.active {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* 개수 선택기 */
+        .count-selector {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-md);
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .count-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .count-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .count-btn.active {
+            background: var(--success-gradient);
+            color: white;
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* 필터 선택기 */
+        .filter-selector {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-md);
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-align: center;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--warning-gradient);
+            color: white;
+            box-shadow: var(--shadow-soft);
+        }
+
+        /* 드롭다운 스타일 */
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius-md);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            backdrop-filter: blur(10px);
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .filter-select:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(79, 172, 254, 0.5);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(79, 172, 254, 0.7);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .filter-select option {
+            background: #1a1a2e;
+            color: var(--text-primary);
+            padding: 8px;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1200px) {
+            .control-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+            
+            .unified-header {
+                padding: 20px 24px;
+            }
+            
+            .main-title {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .control-row {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .status-badge {
+                align-self: flex-end;
+            }
+            
+            .unified-header {
+                padding: 16px 20px;
+                margin: 0 12px;
+                margin-top: 12px;
+            }
+            
+            .main-title {
+                font-size: 24px;
+            }
+            
+            .subtitle {
+                font-size: 14px;
+            }
+        }
+
+        /* 검색 통계 스타일 */
+        .search-stats {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-md);
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-sm);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition-smooth);
+        }
+
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            font-size: 20px;
+            opacity: 0.8;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .stat-item {
+                padding: 10px;
+            }
+            
+            .stat-value {
+                font-size: 14px;
+            }
+            
+            .stat-label {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 통합 헤더 -->
+        <div class="unified-header">
+            <div class="header-main">
+                <div class="header-content">
+                    <div class="title-section">
+                        <h1 class="main-title">
+                            <span class="title-icon">🔍</span>
+                            도로설계 지능형 검색
+                    </h1>
+                        <p class="subtitle">한국도로공사 설계기준 | AI 의미론적 검색 | 실시간 PDF 분석</p>
+                </div>
+                    <div class="status-badge">
+                        <div class="badge-content">
+                            <span class="badge-label">최신 업데이트</span>
+                            <span class="badge-value">2024년 도로설계기준</span>
+                    </div>
+                </div>
+            </div>
+
+                <!-- 통합 컨트롤 섹션 -->
+                <div class="unified-controls">
+                    <div class="control-row">
+                        <div class="control-item">
+                            <label class="control-label">🔍 검색 모드</label>
+                            <div class="mode-selector">
+                                <button class="mode-btn" data-mode="hybrid" onclick="setSearchModeRadio('hybrid')">하이브리드</button>
+                                <button class="mode-btn" data-mode="vector" onclick="setSearchModeRadio('vector')">의미</button>
+                                <button class="mode-btn active" data-mode="keyword" onclick="setSearchModeRadio('keyword')">키워드</button>
+                    </div>
+                </div>
+
+                        <div class="control-item">
+                            <label class="control-label">📊 결과 개수</label>
+                            <div class="count-selector">
+                                <button class="count-btn" data-count="10" onclick="setResultCount(10)">10</button>
+                                <button class="count-btn active" data-count="20" onclick="setResultCount(20)">20</button>
+                                <button class="count-btn" data-count="30" onclick="setResultCount(30)">30</button>
+                                <button class="count-btn" data-count="50" onclick="setResultCount(50)">50</button>
+                                <button class="count-btn" data-count="100" onclick="setResultCount(100)">100</button>
+                    </div>
+                </div>
+
+                        <div class="control-item">
+                            <label class="control-label">📁 문서 범위</label>
+                            <div class="filter-container">
+                                <div class="filter-selector">
+                                    <button class="filter-btn active" data-filter="all" onclick="setDocumentFilter('all')">📋 전체 (15개 파일)</button>
+                                    <button class="filter-btn" data-filter="도로설계요령" onclick="setDocumentFilter('도로설계요령')">🛣️ 도로설계요령(2020) (5개 파일)</button>
+                                    <button class="filter-btn" data-filter="실무지침" onclick="setDocumentFilter('실무지침')">📖 실무지침(2020) (10개 파일)</button>
+                </div>
+
+                                <!-- 파일 목록 표시 (고정 위치) -->
+                                <div class="fixed-file-list" id="fixedFileList" style="display: none;">
+                                    <div class="file-list-info">
+                                        <div class="info-item">
+                                            <span class="info-label">📄 파일 개수:</span>
+                                            <span class="info-value" id="fixedFileCount">0개</span>
+                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">📊 총 페이지:</span>
+                                            <span class="info-value" id="fixedTotalPages">0페이지</span>
+                    </div>
+                                        <div class="info-item">
+                                            <span class="info-label">💾 총 크기:</span>
+                                            <span class="info-value" id="fixedTotalSize">0MB</span>
+                </div>
+            </div>
+
+                                    <div class="file-list-content">
+                                        <div class="file-list-title">📄 파일 목록</div>
+                                        <div class="file-items" id="fixedFileItems">
+                </div>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+                    </div>
+                    </div>
+                </div>
+
+
+        <div class="main-content">
+            <!-- 좌측 검색 패널 -->
+            <div class="left-panel">
+                <div class="search-container">
+                    <div class="search-box">
+                        <input
+                            type="text"
+                            class="search-input"
+                            placeholder="도로 설계에 대한 질문을 입력하세요... (예: 도로 설계속도, 차로폭 기준)"
+                            id="searchInput"
+                        >
+                        <button class="search-btn" onclick="performSearch()">🔍 검색</button>
+                    </div>
+                    
+
+                    <!-- 고급 검색 옵션 -->
+                    <div class="search-options">
+                        <div class="advanced-options-grid">
+                            <div class="option-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="fullSentences" onchange="updateContextOptions()">
+                                    <span class="checkmark"></span>
+                                🎯 키워드 문장만 표시
+                            </label>
+                            </div>
+                            <div class="option-item">
+                                <label class="select-label">📄 전후 문맥:</label>
+                                <select id="sentenceContext" onchange="updateContextOptions()" class="context-select">
+                                    <option value="0">없음</option>
+                                    <option value="1" selected>1문장</option>
+                                    <option value="2">2문장</option>
+                                    <option value="3">3문장</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- 새로운 고급 검색 단위 옵션 -->
+                        <div class="granularity-section" style="margin-top: 15px; padding: 15px; background: rgba(79, 209, 199, 0.1); border-radius: 12px; border: 1px solid rgba(79, 209, 199, 0.2);">
+                            <div style="margin-bottom: 12px;">
+                                <label style="font-weight: 600; color: #4fd1c7; font-size: 14px;">🔬 검색 단위 (Granularity)</label>
+                            </div>
+                            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="radio" id="granularitySentence" name="granularity" value="sentence" checked onchange="updateGranularityOptions()">
+                                    <label for="granularitySentence" style="color: #e2e8f0; font-size: 13px;">📝 문장 단위</label>
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="radio" id="granularityChar" name="granularity" value="char" onchange="updateGranularityOptions()">
+                                    <label for="granularityChar" style="color: #e2e8f0; font-size: 13px;">🔤 글자 단위</label>
+                                </div>
+                            </div>
+                            
+                            <!-- 반경 설정 옵션 -->
+                            <div id="radiusOptions" style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap;">
+                                <!-- 문장 단위 옵션 (기본 표시) -->
+                                <div id="sentenceRadiusOptions" style="display: flex; gap: 8px; align-items: center;">
+                                    <span style="color: #a0aec0; font-size: 12px;">주변:</span>
+                                    <button class="radius-btn active" data-radius="1" onclick="setRadius(1)">1문장</button>
+                                    <button class="radius-btn" data-radius="2" onclick="setRadius(2)">2문장</button>
+                                    <button class="radius-btn" data-radius="3" onclick="setRadius(3)">3문장</button>
+                                </div>
+                                
+                                <!-- 글자 단위 옵션 (숨김) -->
+                                <div id="charRadiusOptions" style="display: none; gap: 8px; align-items: center;">
+                                    <span style="color: #a0aec0; font-size: 12px;">주변:</span>
+                                    <button class="radius-btn" data-radius="30" onclick="setRadius(30)">30자</button>
+                                    <button class="radius-btn active" data-radius="50" onclick="setRadius(50)">50자</button>
+                                    <button class="radius-btn" data-radius="100" onclick="setRadius(100)">100자</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="loading-spinner"></div>
+                    <p>검색 중... 잠시만 기다려주세요</p>
+                </div>
+
+                <!-- 검색 통계 -->
+                <div class="search-stats" id="searchStats" style="display: none;">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="statResults">0</div>
+                                <div class="stat-label">검색 결과</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">⏱️</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="statTime">0ms</div>
+                                <div class="stat-label">검색 시간</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">🔍</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="statMode">키워드</div>
+                                <div class="stat-label">검색 모드</div>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">📁</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="statFilter">전체</div>
+                                <div class="stat-label">문서 범위</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results" id="results"></div>
+            </div>
+
+            <!-- 우측 보기 패널 -->
+            <div class="right-panel">
+                <div class="viewer-container">
+                    <div class="viewer-header">
+                        <h3>📄 문서 보기</h3>
+                        <p>PDF 원본 또는 하이라이트 이미지가 여기에 표시됩니다</p>
+                    </div>
+                    <div class="viewer-content" id="viewerContent">
+                        <div class="empty-state">
+                            <div style="text-align: center; padding: 60px 20px; color: #718096;">
+                                <div style="font-size: 4rem; margin-bottom: 20px;">📖</div>
+                                <h3 style="color: #2d3748; margin-bottom: 10px;">문서를 선택해주세요</h3>
+                                <p>검색 결과에서 "원본 PDF 보기" 또는 "하이라이트 보기"를 클릭하세요</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pdf-viewer" id="pdfViewer">
+        <button class="close-pdf" onclick="closePDF()">✖ 닫기</button>
+        <iframe id="pdfFrame"></iframe>
+    </div>
+
+    <script>
+        let currentSearchMode = 'keyword';
+        let searchTimeout;
+        let currentResultCount = 20;
+        let currentDisplayMode = 'table';
+        let previewEnabled = false;
+        let isSearching = false;
+        
+        // API URL 설정 (배포 환경에 따라 자동 변경)
+        const API_BASE_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8080' 
+            : 'https://your-railway-app.railway.app';
+        let currentDocumentFilter = 'all';
+
+        // 상단 컨트롤 함수들
+        function setSearchModeRadio(mode) {
+            currentSearchMode = mode;
+
+            // 라디오 버튼 UI 업데이트
+            document.querySelectorAll('#searchModeRadio .radio-option').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`#searchModeRadio [data-mode="${mode}"]`).classList.add('active');
+
+            // 검색어가 있으면 즉시 재검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        function setResultCount(count) {
+            currentResultCount = count;
+
+            // 숫자 버튼 UI 업데이트
+            document.querySelectorAll('#resultCountSelector .number-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`#resultCountSelector [data-count="${count}"]`).classList.add('active');
+
+            // 검색어가 있으면 즉시 재검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        function setDisplayModeRadio(mode) {
+            currentDisplayMode = mode;
+
+            // 라디오 버튼 UI 업데이트
+            document.querySelectorAll('#displayModeRadio .radio-option').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`#displayModeRadio [data-mode="${mode}"]`).classList.add('active');
+
+            // 검색어가 있으면 즉시 재검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        function togglePreviewSwitch() {
+            previewEnabled = !previewEnabled;
+
+            // 토글 스위치 UI 업데이트
+            const toggleSwitch = document.getElementById('previewToggle');
+            if (previewEnabled) {
+                toggleSwitch.classList.add('active');
+            } else {
+                toggleSwitch.classList.remove('active');
+            }
+
+            // 검색어가 있으면 즉시 재검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        function setDocumentFilterRadio(filter) {
+            currentDocumentFilter = filter;
+
+            // 라디오 버튼 UI 업데이트
+            document.querySelectorAll('#documentFilterRadio .radio-option').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`#documentFilterRadio [data-filter="${filter}"]`).classList.add('active');
+
+            // 검색어가 있으면 즉시 재검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        // 새로운 문서 필터 함수
+        function setDocumentFilter(filter) {
+            currentDocumentFilter = filter;
+
+            // 필터 버튼 UI 업데이트
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+
+            // '전체'가 아닌 경우 고정 위치 파일 목록 표시
+            if (filter !== 'all') {
+                showFixedFileList(filter);
+            } else {
+                hideFixedFileList();
+            }
+
+            // 검색어가 있으면 즉시 재검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        // 고정 위치 파일 목록 표시 함수
+        function showFixedFileList(category) {
+            const fixedFileList = document.getElementById('fixedFileList');
+            const fileCount = document.getElementById('fixedFileCount');
+            const totalPages = document.getElementById('fixedTotalPages');
+            const totalSize = document.getElementById('fixedTotalSize');
+            const fileItems = document.getElementById('fixedFileItems');
+            
+            if (!fixedFileList) {
+                console.error('fixedFileList 요소를 찾을 수 없습니다!');
+                return;
+            }
+            
+            // 파일 목록 데이터
+            const fileData = {
+                '도로설계요령': [
+                    { name: '제1권 도로계획및 구조.pdf', pages: 621, size: 22.4 },
+                    { name: '제2권 토공 및 배수.pdf', pages: 761, size: 54.5 },
+                    { name: '제3권 교량.pdf', pages: 947, size: 30.6 },
+                    { name: '제4권 터널.pdf', pages: 751, size: 28.9 },
+                    { name: '제5권 포장 도로안전 부대시설 및 환경.pdf', pages: 791, size: 0 }
+                ],
+                '실무지침': [
+                    { name: '0-간지 -편집.pdf', pages: 23, size: 0.2 },
+                    { name: '1-목차.pdf', pages: 4, size: 0.2 },
+                    { name: '2설계행정-327ok.pdf', pages: 223, size: 37.2 },
+                    { name: '3 교통 및 기하구조-327ok.pdf', pages: 20, size: 13.2 },
+                    { name: '4토공 및 배수공-편집중.pdf', pages: 66, size: 32.6 },
+                    { name: '5구조물공-편집중-ok.pdf', pages: 50, size: 10.6 },
+                    { name: '6포장공-편집.pdf', pages: 70, size: 23.1 },
+                    { name: '7터널공-편집ok.pdf', pages: 43, size: 17.1 },
+                    { name: '8 부대공 -편집.pdf', pages: 6, size: 6.0 },
+                    { name: '9기타-편집.pdf', pages: 52, size: 12.0 }
+                ]
+            };
+
+            const files = fileData[category] || [];
+            
+            // 통계 정보 계산
+            const totalFileCount = files.length;
+            const totalPageCount = files.reduce((sum, file) => sum + file.pages, 0);
+            const totalSizeCount = files.reduce((sum, file) => sum + file.size, 0);
+            
+            // 통계 정보 표시
+            fileCount.textContent = `${totalFileCount}개`;
+            totalPages.textContent = `${totalPageCount.toLocaleString()}페이지`;
+            totalSize.textContent = `${totalSizeCount.toFixed(1)}MB`;
+            
+               // 파일 목록 생성 (모든 파일 표시, 스크롤 가능)
+               if (fileItems) {
+                   fileItems.innerHTML = '';
+                   files.forEach(file => {
+                       const fileItem = document.createElement('div');
+                       fileItem.className = 'file-item';
+                       fileItem.innerHTML = `
+                           <div class="file-name">${file.name}</div>
+                           <div class="file-details">
+                               📄 ${file.pages}페이지 | 💾 ${file.size}MB
+                           </div>
+                       `;
+                       fileItems.appendChild(fileItem);
+                   });
+               }
+
+            // 파일 목록 강제 표시
+            fixedFileList.style.display = 'block';
+            fixedFileList.style.visibility = 'visible';
+            fixedFileList.style.opacity = '1';
+        }
+
+        // 고정 위치 파일 목록 숨기기 함수
+        function hideFixedFileList() {
+            const fixedFileList = document.getElementById('fixedFileList');
+            if (fixedFileList) {
+                fixedFileList.style.display = 'none';
+                fixedFileList.style.visibility = 'hidden';
+                fixedFileList.style.opacity = '0';
+            }
+        }
+
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 필터 버튼 초기 상태 설정
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector('[data-filter="all"]').classList.add('active');
+            
+            // 다른 곳 클릭 시 파일 목록 닫기
+            document.addEventListener('click', function(event) {
+                const fixedFileList = document.getElementById('fixedFileList');
+                const filterContainer = document.querySelector('.filter-container');
+                
+                // 파일 목록이 표시되어 있고, 클릭한 곳이 필터 컨테이너 밖이라면
+                if (fixedFileList && fixedFileList.style.display === 'block') {
+                    if (!filterContainer.contains(event.target)) {
+                        hideFixedFileList();
+                    }
+                }
+            });
+        });
+
+        // 새로운 모드 선택 함수
+        function setSearchModeRadio(mode) {
+            currentSearchMode = mode;
+            
+            // 모든 모드 버튼에서 active 클래스 제거
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 선택된 모드 버튼에 active 클래스 추가
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+            
+            // 검색어가 있으면 즉시 재검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        // 새로운 결과 개수 설정 함수
+        function setResultCount(count) {
+            currentResultCount = count;  // currentMaxResults 대신 currentResultCount 사용
+            
+            // 모든 개수 버튼에서 active 클래스 제거
+            document.querySelectorAll('.count-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 선택된 개수 버튼에 active 클래스 추가
+            document.querySelector(`[data-count="${count}"]`).classList.add('active');
+            
+            // 검색어가 있으면 즉시 재검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        // 검색 통계 업데이트 함수
+        function updateSearchStats(results, searchTime, mode, filter) {
+            const statsContainer = document.getElementById('searchStats');
+            const statResults = document.getElementById('statResults');
+            const statTime = document.getElementById('statTime');
+            const statMode = document.getElementById('statMode');
+            const statFilter = document.getElementById('statFilter');
+            
+            if (results && results.length > 0) {
+                statResults.textContent = results.length;
+                statTime.textContent = `${searchTime}ms`;
+                
+                // 모드명 변환
+                const modeNames = {
+                    'hybrid': '하이브리드',
+                    'vector': '의미',
+                    'keyword': '키워드'
+                };
+                statMode.textContent = modeNames[mode] || mode;
+                
+                // 필터명 변환
+                const filterNames = {
+                    'all': '전체',
+                    '도로설계요령': '도로설계요령(2020)',
+                    '실무지침': '실무지침(2020)'
+                };
+                statFilter.textContent = filterNames[filter] || filter;
+                
+                statsContainer.style.display = 'block';
+            } else {
+                statsContainer.style.display = 'none';
+            }
+        }
+
+        function setSearchMode(mode) {
+            currentSearchMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+
+            // 검색 모드 변경 시 현재 쿼리가 있으면 다시 검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        // 미리보기 토글 함수
+        function togglePreview() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch(); // 미리보기 설정 변경 시 다시 검색하여 결과 업데이트
+            }
+        }
+
+        // 문맥 표시 옵션 업데이트 함수
+        function updateContextOptions() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch(); // 문맥 옵션 변경 시 다시 검색하여 결과 업데이트
+            }
+        }
+
+        // Granularity 옵션 업데이트 함수
+        function updateGranularityOptions() {
+            const granularity = document.querySelector('input[name="granularity"]:checked').value;
+            const sentenceOptions = document.getElementById('sentenceRadiusOptions');
+            const charOptions = document.getElementById('charRadiusOptions');
+            
+            if (granularity === 'sentence') {
+                sentenceOptions.style.display = 'flex';
+                charOptions.style.display = 'none';
+                // 문장 단위 기본값으로 1문장 설정
+                setRadius(1);
+            } else {
+                sentenceOptions.style.display = 'none';
+                charOptions.style.display = 'flex';
+                // 글자 단위 기본값으로 50자 설정
+                setRadius(50);
+            }
+            
+            // 검색어가 있으면 다시 검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        // 반경 설정 함수
+        function setRadius(radius) {
+            // 모든 radius 버튼에서 active 클래스 제거
+            document.querySelectorAll('.radius-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 선택된 버튼에 active 클래스 추가
+            document.querySelector(`[data-radius="${radius}"]`).classList.add('active');
+            
+            // 검색어가 있으면 다시 검색
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            }
+        }
+
+        // 표시 형태 토글 함수
+        function toggleDisplayMode() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length >= 2) {
+                performSearch(); // 표시 형태 변경 시 다시 검색하여 결과 업데이트
+            }
+        }
+
+        // 이미지 표시 옵션 제거됨
+        function updateImageOptions() {
+            // 함수 비활성화
+        }
+
+        // 실시간 검색 기능
+        function handleRealTimeSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+
+            // 검색어가 2글자 미만이면 결과 초기화
+            if (query.length < 2) {
+                document.getElementById('results').innerHTML = '';
+                return;
+            }
+
+            // 이전 타이머 취소
+            clearTimeout(searchTimeout);
+
+            // 300ms 후에 검색 실행 (디바운싱)
+            searchTimeout = setTimeout(() => {
+                if (!isSearching) {
+                    performSearch();
+                }
+            }, 300);
+        }
+
+
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                return;
+            }
+
+            // 2글자 미만이면 검색하지 않음
+            if (query.length < 2) {
+                document.getElementById('results').innerHTML = '';
+                return;
+            }
+
+            // 검색 중 플래그 설정
+            isSearching = true;
+
+
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+
+            loading.style.display = 'block';
+            results.innerHTML = '';
+
+            fetch(`${API_BASE_URL}/api/search`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: query,
+                    mode: currentSearchMode,
+                    max_results: currentResultCount,
+                    full_sentences: document.getElementById('fullSentences').checked,
+                    sentence_context: parseInt(document.getElementById('sentenceContext').value),
+                    document_filter: currentDocumentFilter, // 문서 필터 추가
+                    // 고급 검색 파라미터 추가
+                    granularity: document.querySelector('input[name="granularity"]:checked').value,
+                    radius: parseInt(document.querySelector('.radius-btn.active').getAttribute('data-radius'))
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(async data => {
+                loading.style.display = 'none';
+                isSearching = false;
+
+                // 검색 통계 업데이트
+                const searchTime = data.search_time || 0;
+                updateSearchStats(data.results, searchTime, currentSearchMode, currentDocumentFilter);
+
+                // 이미지 표시 옵션 제거됨
+
+                displayResults(data, query);
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                isSearching = false;
+                console.error('검색 오류:', error);
+                results.innerHTML = `
+                    <div class="error-message">
+                        ❌ 검색 중 오류가 발생했습니다: ${error.message}
+                        <br>FastAPI 서버(${API_BASE_URL})가 실행 중인지 확인해주세요.
+                    </div>
+                `;
+            });
+        }
+
+        // 검색 결과에 대한 이미지 로드 함수
+        async function loadResultImages(data, query) {
+            const cropImages = document.getElementById('cropImages').checked;
+            const keywords = query.split(' ').filter(word => word.length > 1); // 1글자 제외
+
+
+            // 각 결과에 대해 이미지 로드 (병렬 처리)
+            const imagePromises = data.results.map(async (result, index) => {
+                try {
+                    // 파일명에서 상대 경로 구성 (폴더 포함)
+                    let fileName = result.metadata.file_name;
+
+                    // 파일명이 폴더 경로를 포함하지 않으면 폴더명 추가
+                    if (!fileName.includes('/') && !fileName.includes('\\')) {
+                        // 실무지침 파일들과 도로설계요령 파일들 구분
+                        if (fileName.includes('실무지침')) {
+                            fileName = '실무지침(2020)/' + fileName;
+                        } else {
+                            fileName = '도로설계요령(2020)/' + fileName;
+                        }
+                    }
+
+                    const pageNum = result.metadata.page - 1; // 0부터 시작
+
+
+                    const response = await fetch(`${API_BASE_URL}/api/render-page`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            file_path: fileName,
+                            page_num: pageNum,
+                            keywords: keywords,
+                            crop_to_keywords: cropImages,
+                            highlight_color: 'rgba(255, 255, 0, 128)'
+                        })
+                    });
+
+                    if (response.ok) {
+                        const imageData = await response.json();
+                        if (imageData.success) {
+                            result.image_b64 = imageData.image_b64;
+                        } else {
+                            console.warn(`이미지 생성 실패 [${index}]: ${imageData.message}`);
+                        }
+                    } else {
+                        console.warn(`이미지 API 오류 [${index}]: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error(`이미지 로드 오류 [${index}]:`, error);
+                }
+            });
+
+            // 모든 이미지 로드 완료 대기
+            await Promise.all(imagePromises);
+        }
+
+        function displayResults(data, query) {
+            const results = document.getElementById('results');
+            const displayMode = currentDisplayMode;
+
+            if (!data.results || data.results.length === 0) {
+                
+                results.innerHTML = `
+                    <div class="no-results">
+                        🔍 검색 결과가 없습니다.<br>
+                        다른 키워드로 검색해보세요.
+                    </div>
+                `;
+                return;
+            }
+
+            const searchMode = data.search_mode || 'hybrid';
+
+            if (displayMode === 'table') {
+                displayTableResults(data, query);
+            } else {
+                displayCardResults(data, query);
+            }
+        }
+
+        function displayTableResults(data, query) {
+            const results = document.getElementById('results');
+            const searchMode = data.search_mode || 'hybrid';
+
+            let html = `
+                <div style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%); border-radius: 16px; border: 1px solid rgba(79, 209, 199, 0.3);">
+                    <h2 style="color: #4fd1c7; margin: 0 0 12px 0; text-align: center;">📊 검색 결과</h2>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                        <div style="text-align: center; padding: 8px; background: rgba(79, 209, 199, 0.1); border-radius: 8px;">
+                            <div style="font-size: 18px; font-weight: bold; color: #4fd1c7;">${data.results.length}</div>
+                            <div style="font-size: 12px; color: #a0aec0;">검색 결과</div>
+                        </div>
+                        <div style="text-align: center; padding: 8px; background: rgba(79, 209, 199, 0.1); border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: bold; color: #4fd1c7;">${searchMode.toUpperCase()}</div>
+                            <div style="font-size: 12px; color: #a0aec0;">검색 모드</div>
+                        </div>
+                        <div style="text-align: center; padding: 8px; background: rgba(79, 209, 199, 0.1); border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: bold; color: #4fd1c7;">${currentDocumentFilter === 'all' ? '전체' : currentDocumentFilter}</div>
+                            <div style="font-size: 12px; color: #a0aec0;">문서 필터</div>
+                        </div>
+                        <div style="text-align: center; padding: 8px; background: rgba(79, 209, 199, 0.1); border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: bold; color: #4fd1c7;">${data.search_time ? Math.round(data.search_time * 1000) + 'ms' : '< 100ms'}</div>
+                            <div style="font-size: 12px; color: #a0aec0;">검색 시간</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; color: #a0aec0; font-size: 13px;">
+                        💡 ${data.total_documents || '6,139'}개 문서 청크에서 검색 완료
+                    </div>
+                </div>
+
+                <div class="results-table">
+                    <table>
+                        <thead>
+                            <tr style="background: #4a5568; border-bottom: 2px solid #4fd1c7;">
+                                <th style="padding: 12px 8px; text-align: center; font-size: 13px; white-space: nowrap; border-right: 1px solid #2d3748; width: 50px;">#</th>
+                                <th style="padding: 12px 8px; text-align: left; font-size: 13px; white-space: nowrap; border-right: 1px solid #2d3748;">📈 점수</th>
+                                <th style="padding: 12px 8px; text-align: left; font-size: 13px; white-space: nowrap; border-right: 1px solid #2d3748;">🎯 키워드 점수</th>
+                                <th style="padding: 12px 8px; text-align: left; font-size: 13px; white-space: nowrap; border-right: 1px solid #2d3748;">📁 출처</th>
+                                <th style="padding: 12px 8px; text-align: left; font-size: 13px; white-space: nowrap; border-right: 1px solid #2d3748;">📑 페이지</th>
+                                <th style="padding: 12px 8px; text-align: left; font-size: 13px; width: 50%;">📝 추출된 내용</th>
+                                <th style="padding: 12px 8px; text-align: center; font-size: 13px; white-space: nowrap;">🔧 작업</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            data.results.forEach((result, index) => {
+                const content = result.document || '';
+                const highlightedContent = highlightKeywords(content, query);
+                const score = result.score ? (result.score * 100).toFixed(1) : '0.0';
+                const fileName = result.metadata ? result.metadata.file_name : 'Unknown';
+                const pageZeroBased = result.metadata ? result.metadata.page : 0;
+                const pageOneBased = pageZeroBased + 1;
+                const pageLabel = result.metadata ? result.metadata.page_label : pageOneBased;
+                const category = result.metadata ? result.metadata.category : 'Unknown';
+                const folderName = category === '실무지침' ? '실무지침(2020)' : '도로설계요령(2020)';
+                const fullPath = `${folderName}/${fileName}`;
+
+                // 키워드 검색 최적화: 3줄 기본, 스마트 요약
+                let summary = content;
+                const fullSentences = document.getElementById('fullSentences').checked;
+                const sentenceContext = parseInt(document.getElementById('sentenceContext').value);
+
+                if (fullSentences || currentSearchMode === 'keyword') {
+                    // 키워드 포함 문장 중심으로 최적화된 요약
+                    const sentences = content.split(/[.!?]/).filter(s => s.trim().length > 10);
+                    const keywordSentences = sentences.filter(s =>
+                        query.split(' ').some(keyword =>
+                            s.toLowerCase().includes(keyword.toLowerCase())
+                        )
+                    );
+
+                    if (keywordSentences.length > 0) {
+                        // 키워드 포함 문장 + 전후 문맥
+                        const contextSentences = [];
+                        keywordSentences.slice(0, 1).forEach(keywordSent => {
+                            const index = sentences.indexOf(keywordSent);
+                            const start = Math.max(0, index - sentenceContext);
+                            const end = Math.min(sentences.length, index + sentenceContext + 1);
+                            contextSentences.push(...sentences.slice(start, end));
+                        });
+                        summary = [...new Set(contextSentences)].join('. ').trim();
+                    }
+                }
+
+                // 최대 200자로 제한 (테이블 가독성을 위해)
+                if (summary.length > 200) {
+                    summary = summary.substring(0, 200) + '...';
+                }
+
+                const highlightedSummary = highlightKeywords(summary, query);
+
+                // 점수에 따른 색상
+                const scoreColor = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#6b7280';
+
+                // 키워드 점수 처리
+                const keywordScore = result.keyword_score || null;
+                const keywordScoreDisplay = keywordScore !== null ? `${keywordScore}%` : '-';
+                const keywordScoreColor = keywordScore >= 80 ? '#10b981' : keywordScore >= 60 ? '#f59e0b' : keywordScore >= 40 ? '#f97316' : '#6b7280';
+                
+                // 추출된 텍스트 사용 (extracted_text가 있으면 사용, 없으면 기존 content 사용)
+                const displayContent = result.extracted_text || content;
+                const highlightedDisplayContent = highlightKeywords(displayContent, query);
+
+                html += `
+                    <tr style="border-bottom: 1px solid #4a5568; transition: background-color 0.2s;"
+                        onmouseover="this.style.backgroundColor='#374151'"
+                        onmouseout="this.style.backgroundColor='transparent'">
+                        <td style="padding: 10px 8px; text-align: center; border-right: 1px solid #4a5568;">
+                            <div style="color: #4fd1c7; font-weight: bold; font-size: 14px;">${index + 1}</div>
+                        </td>
+                        <td style="padding: 10px 8px; text-align: center; border-right: 1px solid #4a5568;">
+                            <div class="score-badge" style="color: ${scoreColor};">${score}%</div>
+                        </td>
+                        <td style="padding: 10px 8px; text-align: center; border-right: 1px solid #4a5568;">
+                            <div style="color: ${keywordScoreColor}; font-weight: 600; font-size: 12px;">${keywordScoreDisplay}</div>
+                        </td>
+                        <td style="padding: 10px 8px; border-right: 1px solid #4a5568; max-width: 200px;">
+                            <div style="font-size: 12px; color: #4fd1c7; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${fullPath}">
+                                ${fullPath}
+                            </div>
+                        </td>
+                        <td style="padding: 10px 8px; text-align: center; border-right: 1px solid #4a5568;">
+                            <div class="page-badge">${pageLabel}</div>
+                        </td>
+                        <td style="padding: 10px 8px; line-height: 1.4; font-size: 13px; border-right: 1px solid #4a5568;">
+                            <div style="white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto;">
+                                ${highlightedDisplayContent}
+                            </div>
+                        </td>
+                        <td style="padding: 10px 8px; text-align: center;">
+                            <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
+                                <button onclick="openPDF('${fullPath}', ${pageOneBased}, '${category}')"
+                                        style="background: #3182ce; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: background 0.2s;"
+                                        onmouseover="this.style.backgroundColor='#2c5aa0'"
+                                        onmouseout="this.style.backgroundColor='#3182ce'">
+                                    📄 원본
+                                </button>
+                                <button onclick="showHighlightedPage('${fullPath}', ${pageOneBased}, '${query}', '${category}')"
+                                        style="background: #d69e2e; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: background 0.2s;"
+                                        onmouseover="this.style.backgroundColor='#b7791f'"
+                                        onmouseout="this.style.backgroundColor='#d69e2e'">
+                                    🎨 강조
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 15px; text-align: center; color: #a0aec0; font-size: 12px;">
+                    💡 행을 마우스오버하면 하이라이트됩니다 | 점수가 높을수록 관련도가 높습니다
+                </div>
+            `;
+
+            results.innerHTML = html;
+        }
+
+        function displayCardResults(data, query) {
+            const results = document.getElementById('results');
+            const searchMode = data.search_mode || 'hybrid';
+            let html = `
+                <div style="margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, rgba(15, 20, 25, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%); border-radius: 16px; border: 1px solid rgba(79, 209, 199, 0.3);">
+                    <h2 style="color: #4fd1c7; margin: 0 0 12px 0; text-align: center;">📊 검색 결과</h2>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                        <div style="text-align: center; padding: 8px; background: rgba(79, 209, 199, 0.1); border-radius: 8px;">
+                            <div style="font-size: 18px; font-weight: bold; color: #4fd1c7;">${data.results.length}</div>
+                            <div style="font-size: 12px; color: #a0aec0;">검색 결과</div>
+                        </div>
+                        <div style="text-align: center; padding: 8px; background: rgba(79, 209, 199, 0.1); border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: bold; color: #4fd1c7;">${searchMode.toUpperCase()}</div>
+                            <div style="font-size: 12px; color: #a0aec0;">검색 모드</div>
+                        </div>
+                        <div style="text-align: center; padding: 8px; background: rgba(79, 209, 199, 0.1); border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: bold; color: #4fd1c7;">${currentDocumentFilter === 'all' ? '전체' : currentDocumentFilter}</div>
+                            <div style="font-size: 12px; color: #a0aec0;">문서 필터</div>
+                        </div>
+                        <div style="text-align: center; padding: 8px; background: rgba(79, 209, 199, 0.1); border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: bold; color: #4fd1c7;">${data.search_time ? Math.round(data.search_time * 1000) + 'ms' : '< 100ms'}</div>
+                            <div style="font-size: 12px; color: #a0aec0;">검색 시간</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; color: #a0aec0; font-size: 13px;">
+                        💡 ${data.total_documents || '6,139'}개 문서 청크에서 검색 완료
+                    </div>
+                </div>
+            `;
+
+            data.results.forEach((result, index) => {
+                const content = result.document || '';
+                const highlightedContent = highlightKeywords(content, query);
+                const score = result.score ? (result.score * 100).toFixed(1) : '0.0';
+                const fileName = result.metadata ? result.metadata.file_name : 'Unknown';
+                const pageZeroBased = result.metadata ? result.metadata.page : 0;
+                const pageOneBased = pageZeroBased + 1;
+                const pageLabel = result.metadata ? result.metadata.page_label : pageOneBased;
+                const category = result.metadata ? result.metadata.category : 'Unknown';
+                const chunkId = result.metadata ? result.metadata.chunk_id : index;
+                const folderName = category === '실무지침' ? '실무지침(2020)' : '도로설계요령(2020)';
+                const fullPath = `${folderName}/${fileName}`;
+
+                // 미리보기 모드 토글
+                const showPreview = document.getElementById('showPreview')?.checked || false;
+
+                let previewSection = '';
+                const showImages = false; // 이미지 표시 옵션 제거
+
+                // 이미지 렌더링 시스템 제거됨
+                if (false) {
+                    previewSection = `
+                        <div class="result-preview" style="margin-top: 15px;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <h4 style="color: #ffa500; margin: 0; font-size: 14px;">📸 원본 이미지 (키워드 하이라이트)</h4>
+                                <span style="background: rgba(255, 165, 0, 0.2); padding: 2px 8px; border-radius: 10px; font-size: 12px; color: #ffa500;">
+                                    ${document.getElementById('cropImages').checked ? '✂️ 크롭됨' : '📄 전체 페이지'}
+                                </span>
+                            </div>
+                            <div style="border: 2px solid #ffa500; border-radius: 8px; padding: 10px; background: rgba(255, 165, 0, 0.05);">
+                                <img src="data:image/png;base64,${result.image_b64}"
+                                     alt="PDF 페이지 ${pageLabel} 하이라이트 이미지"
+                                     style="max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); background: #ffffff; cursor: pointer;"
+                                     onclick="openImageInNewTab(this.src)">
+                                <div style="margin-top: 8px; font-size: 12px; color: #666; text-align: center;">
+                                    💡 이미지를 클릭하면 새 탭에서 확대하여 볼 수 있습니다
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                // 미리보기 시스템
+                if (showPreview) {
+                    const encodedFileName = encodeURIComponent(fileName);
+                    const highlightImageUrl = `${API_BASE_URL}/api/pdf-highlight/${encodedFileName}/${pageOneBased}/${encodeURIComponent(query)}`;
+
+                    previewSection = `
+                        <div class="result-preview">
+                            <img src="${highlightImageUrl}"
+                                 alt="PDF 페이지 ${pageLabel} 미리보기"
+                                 style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #ffffff;"
+                                 onerror="this.style.display='none'">
+                        </div>
+                    `;
+                }
+
+                // 카드 형태에서도 extracted_text 사용
+                const displayContent = result.extracted_text || content;
+                const highlightedDisplayContent = highlightKeywords(displayContent, query);
+                
+                html += `
+                    <div class="result-item">
+                        <div class="result-score">유사도: ${score}% ${result.keyword_score ? `| 키워드: ${result.keyword_score}%` : ''}</div>
+                        <div class="result-content" style="white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto;">${highlightedDisplayContent}</div>
+                        ${previewSection}
+                        <div class="result-meta">
+                            <span class="meta-badge">📄 ${fullPath}</span>
+                            <span class="meta-badge">📄 ${pageLabel}페이지</span>
+                            <span class="meta-badge">🔢 청크 ${chunkId}</span>
+                            <span class="meta-badge">💾 ${content.length}자</span>
+                        </div>
+                        <div class="result-actions">
+                            <button class="action-btn pdf-btn" onclick="openPDF('${fullPath}', ${pageOneBased}, '${category}')">
+                                📄 원본 PDF 보기
+                            </button>
+                            <button class="action-btn highlight-btn" onclick="showHighlightedPage('${fullPath}', ${pageOneBased}, '${query}', '${category}')">
+                                🎨 하이라이트 보기
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            results.innerHTML = html;
+        }
+
+        function highlightKeywords(content, query) {
+            if (!content || !query) return content || '';
+
+            const keywords = query.split(' ').filter(word => word.length > 1);
+            let highlighted = content;
+
+            keywords.forEach(keyword => {
+                // 특수문자 이스케이프 처리
+                const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${escapedKeyword})`, 'gi');
+                highlighted = highlighted.replace(regex, '<span class="highlight">$1</span>');
+            });
+
+            return highlighted;
+        }
+
+        function openPDF(filename, page, category) {
+            const viewerContent = document.getElementById('viewerContent');
+            const encodedFilename = encodeURIComponent(filename);
+
+            const folderName = category === '실무지침' ? '실무지침(2020)' : '도로설계요령(2020)';
+            const fullPath = `${folderName}/${filename}`;
+
+            viewerContent.innerHTML = `
+                <div class="viewer-toolbar" style="background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%); padding: 15px 20px; border-bottom: 2px solid #4fd1c7; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="toolbar-left" style="display: flex; align-items: center; gap: 15px;">
+                        <button onclick="closePDFViewer()"
+                                style="background: #e53e3e; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s;"
+                                onmouseover="this.style.backgroundColor='#c53030'"
+                                onmouseout="this.style.backgroundColor='#e53e3e'">
+                            ✖ 닫기
+                        </button>
+                        <button onclick="openPDFInNewTab('${fullPath}', ${page})"
+                                style="background: #3182ce; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s;"
+                                onmouseover="this.style.backgroundColor='#2c5aa0'"
+                                onmouseout="this.style.backgroundColor='#3182ce'">
+                            🔗 새 탭에서 열기
+                        </button>
+                    </div>
+
+                    <div class="toolbar-center" style="text-align: center;">
+                        <div style="color: #4fd1c7; font-size: 16px; font-weight: 600; margin-bottom: 2px;">📄 문서 뷰어</div>
+                        <div style="color: #a0aec0; font-size: 12px;">
+                            ${fullPath} - 페이지 ${page}
+                        </div>
+                    </div>
+
+                    <div class="toolbar-right" style="display: flex; align-items: center; gap: 10px;">
+                        <div style="background: #4fd1c7; color: #1a202c; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                            ${page}p
+                        </div>
+                    </div>
+                </div>
+
+                <div style="height: calc(100% - 80px); background: #f7fafc; padding: 10px;">
+                    <iframe id="pdfIframe"
+                            src="${API_BASE_URL}/api/pdf/${encodedFilename}#page=${page}"
+                            width="100%"
+                            height="100%"
+                            style="border: none; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    </iframe>
+                </div>
+            `;
+        }
+
+        // 이미지 로드 실패 시 대체 PDF 표시
+        function handleImageError(pdfUrl, page) {
+            const container = document.querySelector('.pdf-image-container div');
+            container.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <p style="color: #666; margin-bottom: 20px;">이미지 로딩에 실패했습니다. 원본 PDF로 표시합니다.</p>
+                    <embed src="${pdfUrl}#page=${page}" type="application/pdf"
+                           style="width: 100%; height: 600px; background: #ffffff; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+            `;
+        }
+
+        // 줌 기능
+        let currentZoom = 1.0;
+        function zoomIn() {
+            const img = document.getElementById('pdfPageImage');
+            if (img) {
+                currentZoom += 0.2;
+                img.style.transform = `scale(${currentZoom})`;
+                img.style.transformOrigin = 'top center';
+            }
+        }
+
+        function zoomOut() {
+            const img = document.getElementById('pdfPageImage');
+            if (img && currentZoom > 0.4) {
+                currentZoom -= 0.2;
+                img.style.transform = `scale(${currentZoom})`;
+                img.style.transformOrigin = 'top center';
+            }
+        }
+
+
+        function openPDFInNewTab(filename, page) {
+            const encodedFilename = encodeURIComponent(filename);
+            const pdfUrl = `${API_BASE_URL}/api/pdf/${encodedFilename}#page=${page}`;
+            window.open(pdfUrl, '_blank');
+        }
+
+        function closePDFViewer() {
+            const viewerContent = document.getElementById('viewerContent');
+            viewerContent.innerHTML = `
+                <div class="empty-state">
+                    <div style="text-align: center; padding: 60px 20px; color: #718096;">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">📖</div>
+                        <h3 style="color: #2d3748; margin-bottom: 10px;">문서를 선택해주세요</h3>
+                        <p>검색 결과에서 "원본 PDF 보기" 또는 "하이라이트 보기"를 클릭하세요</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closePDF() {
+            document.getElementById('pdfViewer').style.display = 'none';
+            document.getElementById('pdfFrame').src = '';
+        }
+
+        function showHighlightedPage(filename, page, keyword, category) {
+            const viewerContent = document.getElementById('viewerContent');
+            const encodedFilename = encodeURIComponent(filename);
+            const encodedKeyword = encodeURIComponent(keyword);
+
+            const folderName = category === '실무지침' ? '실무지침(2020)' : '도로설계요령(2020)';
+            const fullPath = `${folderName}/${filename}`;
+
+            viewerContent.innerHTML = `
+                <div class="viewer-toolbar" style="background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%); padding: 15px 20px; border-bottom: 2px solid #f59e0b; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="toolbar-left" style="display: flex; align-items: center; gap: 15px;">
+                        <button onclick="closePDFViewer()"
+                                style="background: #e53e3e; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s;"
+                                onmouseover="this.style.backgroundColor='#c53030'"
+                                onmouseout="this.style.backgroundColor='#e53e3e'">
+                            ✖ 닫기
+                        </button>
+                        <button onclick="openPDF('${fullPath}', ${page}, '${category}')"
+                                style="background: #4fd1c7; color: #1a202c; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s;"
+                                onmouseover="this.style.backgroundColor='#38b2ac'"
+                                onmouseout="this.style.backgroundColor='#4fd1c7'">
+                            📄 원본 보기
+                        </button>
+                        <button onclick="openPDFInNewTab('${fullPath}', ${page})"
+                                style="background: #3182ce; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s;"
+                                onmouseover="this.style.backgroundColor='#2c5aa0'"
+                                onmouseout="this.style.backgroundColor='#3182ce'">
+                            🔗 새 탭에서 열기
+                        </button>
+                    </div>
+
+                    <div class="toolbar-center" style="text-align: center;">
+                        <div style="color: #f59e0b; font-size: 16px; font-weight: 600; margin-bottom: 2px;">🎨 하이라이트 뷰어</div>
+                        <div style="color: #a0aec0; font-size: 12px;">
+                            ${fullPath} - 페이지 ${page}
+                        </div>
+                    </div>
+
+                    <div class="toolbar-right" style="display: flex; align-items: center; gap: 10px;">
+                        <div style="background: #f59e0b; color: #1a202c; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${keyword}">
+                            "${keyword}"
+                        </div>
+                        <div style="background: #4fd1c7; color: #1a202c; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                            ${page}p
+                        </div>
+                    </div>
+                </div>
+
+                <div style="height: calc(100% - 80px); background: #f7fafc; padding: 20px; text-align: center; overflow-y: auto;">
+                    <div style="background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: inline-block; max-width: 100%;">
+                        <img src="${API_BASE_URL}/api/pdf-highlight/${encodedFilename}/${page}/${encodedKeyword}"
+                             alt="PDF 페이지 ${page} 하이라이트"
+                             style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #ffffff;"
+                             onerror="this.onerror=null; this.src='${API_BASE_URL}/api/pdf-page-image/${encodedFilename}/${page}'; this.alt='PDF 페이지 ${page} (하이라이트 실패)';">
+                        <div style="margin-top: 15px; padding: 10px; background: #fef3cd; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                            <p style="margin: 0; color: #92400e; font-size: 14px; font-weight: 500;">
+                                💡 "${keyword}" 키워드가 노란색으로 하이라이트됩니다
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 통합 PDF 뷰어 변수
+        let currentPDFInfo = null;
+        let currentPDFMode = 'original'; // 'original' or 'highlight'
+        let currentHighlightKeyword = '';
+        let currentPDFZoom = 1.0;
+        let highlightPages = []; // 검색 결과 페이지들
+        let preloadedImages = new Map(); // 프리로딩된 이미지 캐시
+        let currentVisiblePage = 1;
+
+        // 통합 PDF 뷰어 함수
+        async function openUnifiedPDFViewer(filename, targetPage, mode = 'original', keyword = '') {
+            try {
+                // PDF 정보를 대략적으로 설정
+                currentPDFInfo = {
+                    filename: filename,
+                    total_pages: 1000, // 대략적인 큰 값으로 설정
+                    metadata: {
+                        title: filename,
+                        author: "",
+                        creator: "",
+                        producer: ""
+                    }
+                };
+                currentPDFMode = mode;
+                currentHighlightKeyword = keyword;
+                currentPDFZoom = 1.0;
+                currentVisiblePage = targetPage;
+
+                // 하이라이트 모드일 때 검색 결과 페이지들 수집
+                if (mode === 'highlight' && keyword) {
+                    await collectHighlightPages(filename, keyword);
+                }
+
+                // 우측 패널에 스크롤 뷰어 표시
+                showScrollPDFViewer(filename, targetPage);
+
+            } catch (error) {
+                console.error('통합 PDF 뷰어 오류:', error);
+                alert('PDF 뷰어 로딩 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 검색 결과 페이지 수집 함수
+        async function collectHighlightPages(filename, keyword) {
+            try {
+                // 현재 검색 결과에서 해당 파일의 페이지들 추출
+                const searchResults = document.querySelectorAll('.search-result');
+                highlightPages = [];
+
+                searchResults.forEach(result => {
+                    const fileNameElement = result.querySelector('h4');
+                    if (fileNameElement && fileNameElement.textContent.includes(filename)) {
+                        const pageMatch = result.textContent.match(/페이지\s*(\d+)/);
+                        if (pageMatch) {
+                            const pageNum = parseInt(pageMatch[1]);
+                            if (!highlightPages.includes(pageNum)) {
+                                highlightPages.push(pageNum);
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('하이라이트 페이지 수집 오류:', error);
+                highlightPages = [];
+            }
+        }
+
+        // 스크롤 PDF 뷰어 표시 함수
+        function showScrollPDFViewer(filename, targetPage) {
+            const viewerContent = document.getElementById('viewerContent');
+
+            // 듀얼 모드: 원본은 iframe, 하이라이트는 이미지 방식
+            if (currentPDFMode === 'original') {
+                // 원본 모드 - iframe으로 고품질 PDF 표시
+                showOriginalPDFViewer(filename, targetPage);
+            } else {
+                // 하이라이트 모드 - 이미지 방식으로 제한된 페이지만 표시
+                showHighlightPDFViewer(filename, targetPage);
+            }
+        }
+
+        // 원본 PDF 뷰어 (iframe 방식)
+        function showOriginalPDFViewer(filename, targetPage) {
+            const viewerContent = document.getElementById('viewerContent');
+            const encodedFilename = encodeURIComponent(filename);
+
+            viewerContent.innerHTML = `
+                <div class="unified-viewer-toolbar">
+                    <button onclick="closePDFViewer()">✖ 닫기</button>
+                    <button onclick="toggleViewMode()" title="보기 모드 전환">
+                        🎨 하이라이트 모드로 전환
+                    </button>
+                    <button onclick="openPDFInNewTab('${filename}', ${targetPage})">🔗 새 탭</button>
+                    <div class="viewer-info">📄 원본 PDF - ${filename}</div>
+                </div>
+
+                <div style="height: calc(100% - 60px); background: #ffffff;">
+                    <iframe id="pdfIframe"
+                            src="${API_BASE_URL}/api/pdf/${encodedFilename}#page=${targetPage}"
+                            width="100%"
+                            height="100%"
+                            style="border: none; background: white;">
+                    </iframe>
+                </div>
+            `;
+        }
+
+        // 하이라이트 PDF 뷰어 (이미지 방식, 제한된 페이지)
+        function showHighlightPDFViewer(filename, targetPage) {
+            const viewerContent = document.getElementById('viewerContent');
+
+            // 하이라이트 페이지 정보
+            const highlightInfo = `🎨 하이라이트: "${currentHighlightKeyword}" (${highlightPages.length}개 페이지)`;
+
+            viewerContent.innerHTML = `
+                <div class="unified-viewer-toolbar">
+                    <button onclick="closePDFViewer()">✖ 닫기</button>
+                    <button onclick="toggleViewMode()" title="보기 모드 전환">
+                        📄 원본 모드로 전환
+                    </button>
+                    <button onclick="zoomInUnified()">🔍+ 확대</button>
+                    <button onclick="zoomOutUnified()">🔍- 축소</button>
+                    <button onclick="navigateHighlightPages()" title="하이라이트 페이지 탐색">🎯 하이라이트 페이지</button>
+                    <div class="viewer-info">${highlightInfo} - ${filename}</div>
+                </div>
+
+                <div id="scrollPdfContainer" class="scroll-pdf-container" style="height: calc(100% - 60px); background: #ffffff; overflow-y: auto;">
+                    <div class="scroll-status" style="position: sticky; top: 0; background: #ffffff; padding: 10px; border-bottom: 1px solid #e2e8f0; z-index: 10; text-align: center;">
+                        <span id="currentPageIndicator">페이지 ${targetPage} (하이라이트 모드)</span>
+                    </div>
+
+                    <div id="pdfScrollContent" style="padding: 20px;">
+                    </div>
+                </div>
+            `;
+
+            // 스크롤 이벤트 리스너 등록 (하이라이트 모드용)
+            const scrollContainer = document.getElementById('scrollPdfContainer');
+            scrollContainer.addEventListener('scroll', handleHighlightScroll);
+
+            // 하이라이트 모드 초기 페이지 로드 (제한된 범위)
+            loadHighlightPages(filename, targetPage);
+        }
+
+        // 하이라이트 모드 페이지 로드 (제한된 범위)
+        async function loadHighlightPages(filename, targetPage) {
+            const scrollContent = document.getElementById('pdfScrollContent');
+            if (!scrollContent) return;
+
+            // 하이라이트 모드는 전후 3-4페이지만 로드
+            const limitedRange = 3;
+            const startPage = Math.max(1, targetPage - limitedRange);
+            const endPage = Math.min(currentPDFInfo.total_pages, targetPage + limitedRange);
+
+            // 페이지 컨테이너들 생성
+            let containerHTML = '';
+            let hasHighlightPages = false;
+
+            for (let i = startPage; i <= endPage; i++) {
+                const isHighlightPage = highlightPages.includes(i);
+                if (isHighlightPage) hasHighlightPages = true;
+
+                containerHTML += `
+                    <div class="page-container" id="page-${i}" style="margin-bottom: 30px; text-align: center;">
+                        <div class="page-header" style="background: ${isHighlightPage ? '#fef3c7' : '#f7fafc'}; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <strong>📄 페이지 ${i}</strong>
+                            ${isHighlightPage ? ' 🎨 하이라이트' : ''}
+                        </div>
+                        <div class="loading-spinner" style="margin: 50px auto;"></div>
+                        <p>페이지를 로딩 중...</p>
+                    </div>
+                `;
+            }
+
+            // 하이라이트 페이지가 없으면 안내 메시지
+            if (!hasHighlightPages && highlightPages.length > 0) {
+                containerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <p style="color: #718096;">이 범위에는 하이라이트 페이지가 없습니다.</p>
+                        <p style="margin-top: 10px;">하이라이트 페이지: ${highlightPages.join(', ')}</p>
+                        <button onclick="goToNearestHighlight(${targetPage})"
+                                style="margin-top: 20px; padding: 10px 20px; background: #4fd1c7; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            🎯 가장 가까운 하이라이트 페이지로 이동
+                        </button>
+                    </div>
+                ` + containerHTML;
+            }
+
+            scrollContent.innerHTML = containerHTML;
+
+            // 타겟 페이지 먼저 로드
+            await loadPageImage(filename, targetPage);
+
+            // 타겟 페이지로 스크롤
+            setTimeout(() => {
+                const pageElement = document.getElementById(`page-${targetPage}`);
+                if (pageElement) {
+                    pageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+
+            // 나머지 페이지들 순차적으로 로드 (하이라이트 우선)
+            for (let i = startPage; i <= endPage; i++) {
+                if (i !== targetPage) {
+                    const priority = highlightPages.includes(i) ? 0 : 1;
+                    setTimeout(() => loadPageImage(filename, i), (Math.abs(i - targetPage) + priority) * 300);
+                }
+            }
+        }
+
+        // 하이라이트 모드 스크롤 처리
+        function handleHighlightScroll() {
+            // 하이라이트 모드에서는 제한된 스크롤만 처리
+            const container = document.getElementById('scrollPdfContainer');
+            const indicator = document.getElementById('currentPageIndicator');
+
+            if (!container || !indicator) return;
+
+            // 현재 보이는 페이지 업데이트
+            const scrollTop = container.scrollTop;
+            const pages = container.querySelectorAll('.page-container');
+
+            pages.forEach((page) => {
+                const pageTop = page.offsetTop - container.offsetTop;
+                const pageBottom = pageTop + page.offsetHeight;
+
+                if (pageTop <= scrollTop + 100 && pageBottom >= scrollTop + 100) {
+                    const pageMatch = page.id.match(/page-(\d+)/);
+                    if (pageMatch) {
+                        const pageNum = parseInt(pageMatch[1]);
+                        indicator.textContent = `페이지 ${pageNum} (하이라이트 모드)`;
+                    }
+                }
+            });
+        }
+
+        // 가장 가까운 하이라이트 페이지로 이동
+        function goToNearestHighlight(currentPage) {
+            if (highlightPages.length === 0) return;
+
+            let nearestPage = highlightPages[0];
+            let minDistance = Math.abs(currentPage - nearestPage);
+
+            highlightPages.forEach(page => {
+                const distance = Math.abs(currentPage - page);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestPage = page;
+                }
+            });
+
+            // 해당 페이지로 다시 로드
+            loadHighlightPages(currentPDFInfo.filename, nearestPage);
+        }
+
+        // 하이라이트 페이지 네비게이션
+        function navigateHighlightPages() {
+            if (highlightPages.length === 0) {
+                alert('하이라이트 페이지가 없습니다.');
+                return;
+            }
+
+            const pageList = highlightPages.join(', ');
+            const pageNum = prompt(`하이라이트 페이지 목록: ${pageList}\n\n이동할 페이지 번호를 입력하세요:`, highlightPages[0]);
+
+            if (pageNum && highlightPages.includes(parseInt(pageNum))) {
+                loadHighlightPages(currentPDFInfo.filename, parseInt(pageNum));
+            } else if (pageNum) {
+                alert('해당 페이지는 하이라이트 페이지가 아닙니다.');
+            }
+        }
+
+        // 초기 페이지 로드 함수 (기존 - 원본 모드용으로 남겨둠)
+        async function loadInitialPages(filename, targetPage) {
+            const scrollContent = document.getElementById('pdfScrollContent');
+
+            // 원본 모드일 때는 더 많은 페이지를 미리 준비
+            const initialLoadRange = currentPDFMode === 'original' ? 5 : 2;
+
+            // 로드할 페이지 범위 계산 (위아래 포함)
+            const startPage = Math.max(1, targetPage - initialLoadRange);
+            const endPage = Math.min(currentPDFInfo.total_pages, targetPage + initialLoadRange);
+
+            // 페이지 컨테이너들 생성
+            let containerHTML = '';
+            for (let i = startPage; i <= endPage; i++) {
+                const isHighlightPage = highlightPages.includes(i);
+                containerHTML += `
+                    <div class="page-container" id="page-${i}" style="margin-bottom: 30px; text-align: center;">
+                        <div class="page-header" style="background: #f7fafc; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <strong>📄 페이지 ${i}</strong>
+                            ${isHighlightPage ? ' 🎨' : ''}
+                        </div>
+                        <div class="loading-spinner" style="margin: 50px auto;"></div>
+                        <p>페이지를 로딩 중...</p>
+                    </div>
+                `;
+            }
+
+            scrollContent.innerHTML = containerHTML;
+
+            // 타겟 페이지 먼저 로드
+            await loadPageImage(filename, targetPage);
+
+            // 타겟 페이지로 스크롤
+            setTimeout(() => {
+                const pageElement = document.getElementById(`page-${targetPage}`);
+                if (pageElement) {
+                    pageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+
+            // 나머지 페이지들 순차적으로 로드
+            for (let i = startPage; i <= endPage; i++) {
+                if (i !== targetPage) {
+                    setTimeout(() => loadPageImage(filename, i), Math.abs(i - targetPage) * 300);
+                }
+            }
+
+            // 추가 프리로딩 시작
+            setTimeout(() => preloadAdjacentPages(filename, targetPage), 2000);
+        }
+
+        // 개별 페이지 이미지 로드 함수
+        async function loadPageImage(filename, pageNum) {
+            const pageContainer = document.getElementById(`page-${pageNum}`);
+            if (!pageContainer) return;
+
+            const encodedFilename = encodeURIComponent(filename);
+
+            try {
+                // 캐시 확인
+                const cacheKey = `${filename}-${pageNum}-${currentPDFMode}`;
+                if (preloadedImages.has(cacheKey)) {
+                    const cachedUrl = preloadedImages.get(cacheKey);
+                    displayPageImage(pageContainer, cachedUrl, pageNum);
+                    return;
+                }
+
+                // URL 결정 (하이라이트 페이지인지 확인)
+                let imageUrl;
+                const isHighlightPage = highlightPages.includes(pageNum);
+
+                if (currentPDFMode === 'highlight' && isHighlightPage && currentHighlightKeyword) {
+                    imageUrl = `${API_BASE_URL}/api/pdf-highlight/${encodedFilename}/${pageNum}/${encodeURIComponent(currentHighlightKeyword)}`;
+                } else {
+                    imageUrl = `${API_BASE_URL}/api/pdf-page-image/${encodedFilename}/${pageNum}`;
+                }
+
+                // 이미지 로드
+                const img = new Image();
+                img.onload = () => {
+                    // 캐시에 저장
+                    preloadedImages.set(cacheKey, imageUrl);
+                    displayPageImage(pageContainer, imageUrl, pageNum);
+                };
+
+                img.onerror = () => {
+                    pageContainer.innerHTML = `
+                        <div class="page-header" style="background: #f7fafc; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <strong>📄 페이지 ${pageNum}</strong>
+                        </div>
+                        <div style="padding: 40px; color: #e53e3e; border: 2px dashed #fed7d7; border-radius: 8px;">
+                            <div style="font-size: 2rem; margin-bottom: 15px;">⚠️</div>
+                            <h4>페이지 로드 실패</h4>
+                            <button onclick="retryLoadPage('${filename}', ${pageNum})" style="margin-top: 10px; padding: 8px 16px; background: #4fd1c7; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                🔄 다시 시도
+                            </button>
+                        </div>
+                    `;
+                };
+
+                img.src = imageUrl;
+
+            } catch (error) {
+                console.error(`페이지 ${pageNum} 로드 오류:`, error);
+                pageContainer.innerHTML = `
+                    <div class="page-header" style="background: #f7fafc; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                        <strong>📄 페이지 ${pageNum}</strong>
+                    </div>
+                    <div style="padding: 40px; color: #e53e3e;">
+                        <h4>로드 오류</h4>
+                        <p>페이지 로드 중 오류가 발생했습니다.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 페이지 이미지 표시 함수
+        function displayPageImage(container, imageUrl, pageNum) {
+            const isHighlightPage = highlightPages.includes(pageNum);
+
+            container.innerHTML = `
+                <div class="page-header" style="background: #f7fafc; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                    <strong>📄 페이지 ${pageNum}</strong>
+                    ${isHighlightPage ? ' 🎨' : ''}
+                    ${isHighlightPage && currentPDFMode === 'highlight' ?
+                        `<span style="color: #d69e2e; font-size: 0.9rem;"> (하이라이트 적용)</span>` : ''}
+                </div>
+                <img src="${imageUrl}"
+                     alt="PDF 페이지 ${pageNum}"
+                     style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #ffffff; transform: scale(${currentPDFZoom});"
+                     onclick="toggleZoom()">
+                ${isHighlightPage && currentPDFMode === 'highlight' ?
+                    `<p style="margin-top: 15px; color: #718096; font-size: 0.9rem; text-align: center;">
+                        💡 "${currentHighlightKeyword}" 키워드가 노란색으로 하이라이트됩니다
+                    </p>` : ''}
+            `;
+        }
+
+        // 인접 페이지 프리로딩 함수
+        function preloadAdjacentPages(filename, currentPage) {
+            const preloadRange = 2; // 위아래 2페이지씩
+
+            for (let i = currentPage - preloadRange; i <= currentPage + preloadRange; i++) {
+                if (i > 0 && i <= currentPDFInfo.total_pages && i !== currentPage) {
+                    // 백그라운드에서 프리로딩
+                    setTimeout(() => preloadPage(filename, i), (Math.abs(i - currentPage) * 500));
+                }
+            }
+        }
+
+        // 개별 페이지 프리로딩 함수
+        async function preloadPage(filename, pageNum) {
+            const encodedFilename = encodeURIComponent(filename);
+            const cacheKey = `${filename}-${pageNum}-${currentPDFMode}`;
+
+            // 이미 캐시되어 있으면 스킵
+            if (preloadedImages.has(cacheKey)) return;
+
+            try {
+                // URL 결정
+                let imageUrl;
+                const isHighlightPage = highlightPages.includes(pageNum);
+
+                if (currentPDFMode === 'highlight' && isHighlightPage && currentHighlightKeyword) {
+                    imageUrl = `${API_BASE_URL}/api/pdf-highlight/${encodedFilename}/${pageNum}/${encodeURIComponent(currentHighlightKeyword)}`;
+                } else {
+                    imageUrl = `${API_BASE_URL}/api/pdf-page-image/${encodedFilename}/${pageNum}`;
+                }
+
+                // 백그라운드 로딩
+                const img = new Image();
+                img.onload = () => {
+                    preloadedImages.set(cacheKey, imageUrl);
+                };
+                img.src = imageUrl;
+
+            } catch (error) {
+                console.error(`페이지 ${pageNum} 프리로딩 실패:`, error);
+            }
+        }
+
+        // 스크롤 이벤트 처리 함수
+        let scrollTimeout;
+        function handlePDFScroll() {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                const container = document.getElementById('scrollPdfContainer');
+                const scrollContent = document.getElementById('pdfScrollContent');
+
+                if (!container || !scrollContent) return;
+
+                // 현재 보이는 페이지 계산
+                const scrollTop = container.scrollTop;
+                const containerHeight = container.clientHeight;
+                const pages = scrollContent.querySelectorAll('.page-container');
+
+                let visiblePage = currentVisiblePage;
+                pages.forEach((page) => {
+                    const pageTop = page.offsetTop - scrollContent.offsetTop;
+                    const pageBottom = pageTop + page.offsetHeight;
+
+                    if (pageTop <= scrollTop + containerHeight / 2 && pageBottom >= scrollTop + containerHeight / 2) {
+                        const pageMatch = page.id.match(/page-(\d+)/);
+                        if (pageMatch) {
+                            visiblePage = parseInt(pageMatch[1]);
+                        }
+                    }
+                });
+
+                // 현재 페이지 표시 업데이트
+                if (visiblePage !== currentVisiblePage) {
+                    currentVisiblePage = visiblePage;
+                    const indicator = document.getElementById('currentPageIndicator');
+                    if (indicator) {
+                        indicator.textContent = `현재 페이지: ${visiblePage}`;
+                    }
+
+                    // 새로운 페이지 주변 프리로딩
+                    if (currentPDFInfo) {
+                        preloadAdjacentPages(currentPDFInfo.filename, visiblePage);
+                    }
+                }
+
+                // 양방향 무한 스크롤
+                const scrollPercentage = (scrollTop + containerHeight) / scrollContent.scrollHeight;
+
+                // 하단 근처에서 다음 페이지들 로드
+                if (scrollPercentage > 0.8) {
+                    loadMorePages('down');
+                }
+
+                // 상단 근처에서 이전 페이지들 로드
+                if (scrollTop < containerHeight * 0.5) {
+                    loadMorePages('up');
+                }
+
+            }, 100);
+        }
+
+        // 추가 페이지 로드 함수 (양방향 무한 스크롤)
+        function loadMorePages(direction = 'down') {
+            const scrollContent = document.getElementById('pdfScrollContent');
+            if (!scrollContent || !currentPDFInfo) return;
+
+            const existingPages = scrollContent.querySelectorAll('.page-container');
+            if (existingPages.length === 0) return;
+
+            if (direction === 'down') {
+                // 하단에 페이지 추가
+                const lastPageNum = parseInt(existingPages[existingPages.length - 1].id.split('-')[1]);
+
+                for (let i = 1; i <= 3; i++) {
+                    const nextPage = lastPageNum + i;
+                    if (nextPage <= currentPDFInfo.total_pages && !document.getElementById(`page-${nextPage}`)) {
+                        addPageContainer(nextPage, 'bottom');
+                        setTimeout(() => loadPageImage(currentPDFInfo.filename, nextPage), i * 200);
+                    }
+                }
+            } else if (direction === 'up') {
+                // 상단에 페이지 추가
+                const firstPageNum = parseInt(existingPages[0].id.split('-')[1]);
+
+                for (let i = 1; i <= 3; i++) {
+                    const prevPage = firstPageNum - i;
+                    if (prevPage >= 1 && !document.getElementById(`page-${prevPage}`)) {
+                        addPageContainer(prevPage, 'top');
+                        setTimeout(() => loadPageImage(currentPDFInfo.filename, prevPage), i * 200);
+                    }
+                }
+            }
+        }
+
+        // 페이지 컨테이너 추가 함수
+        function addPageContainer(pageNum, position = 'bottom') {
+            const scrollContent = document.getElementById('pdfScrollContent');
+            if (!scrollContent) return;
+
+            const pageContainer = document.createElement('div');
+            pageContainer.className = 'page-container';
+            pageContainer.id = `page-${pageNum}`;
+            pageContainer.style.cssText = 'margin-bottom: 30px; text-align: center;';
+
+            const isHighlightPage = highlightPages.includes(pageNum);
+            pageContainer.innerHTML = `
+                <div class="page-header" style="background: #f7fafc; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                    <strong>📄 페이지 ${pageNum}</strong>
+                    ${isHighlightPage ? ' 🎨' : ''}
+                </div>
+                <div class="loading-spinner" style="margin: 50px auto;"></div>
+                <p>페이지를 로딩 중...</p>
+            `;
+
+            if (position === 'top') {
+                scrollContent.insertBefore(pageContainer, scrollContent.firstChild);
+            } else {
+                scrollContent.appendChild(pageContainer);
+            }
+        }
+
+        // 페이지로 이동 함수
+        function scrollToPage() {
+            const pageNum = prompt('이동할 페이지 번호를 입력하세요:', currentVisiblePage);
+            if (!pageNum || isNaN(pageNum)) return;
+
+            const targetPage = parseInt(pageNum);
+            if (targetPage < 1 || targetPage > currentPDFInfo.total_pages) {
+                alert(`1-${currentPDFInfo.total_pages} 범위의 페이지 번호를 입력하세요.`);
+                return;
+            }
+
+            // 페이지가 없으면 생성
+            let pageElement = document.getElementById(`page-${targetPage}`);
+            if (!pageElement) {
+                addPageContainer(targetPage);
+                loadPageImage(currentPDFInfo.filename, targetPage);
+                pageElement = document.getElementById(`page-${targetPage}`);
+            }
+
+            // 스크롤 이동
+            if (pageElement) {
+                pageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // 페이지 다시 로드 함수
+        function retryLoadPage(filename, pageNum) {
+            const cacheKey = `${filename}-${pageNum}-${currentPDFMode}`;
+            preloadedImages.delete(cacheKey); // 캐시 삭제
+            loadPageImage(filename, pageNum);
+        }
+
+        // 모드 전환 함수 (스크롤 버전)
+        function toggleViewMode() {
+            if (!currentPDFInfo) return;
+
+            currentPDFMode = currentPDFMode === 'original' ? 'highlight' : 'original';
+
+            // 캐시 클리어 (모드가 바뀌었으므로)
+            preloadedImages.clear();
+
+            // 뷰어 재표시
+            showScrollPDFViewer(currentPDFInfo.filename, currentVisiblePage);
+        }
+
+        // 확대/축소 함수들 (스크롤 버전)
+        function zoomInUnified() {
+            currentPDFZoom = Math.min(3.0, currentPDFZoom + 0.2);
+            updateAllPageZoom();
+        }
+
+        function zoomOutUnified() {
+            currentPDFZoom = Math.max(0.5, currentPDFZoom - 0.2);
+            updateAllPageZoom();
+        }
+
+        function toggleZoom() {
+            currentPDFZoom = currentPDFZoom === 1.0 ? 1.5 : 1.0;
+            updateAllPageZoom();
+        }
+
+        function updateAllPageZoom() {
+            const images = document.querySelectorAll('#pdfScrollContent img');
+            images.forEach(img => {
+                img.style.transform = `scale(${currentPDFZoom})`;
+            });
+        }
+
+        // 통합 뷰어 표시 함수 (기존 - 삭제 예정)
+        function showUnifiedViewer(filename, targetPage) {
+            const viewerContent = document.getElementById('viewerContent');
+            const totalPages = currentPDFInfo.total_pages;
+
+            // 모드별 제목
+            const modeInfo = currentPDFMode === 'highlight'
+                ? `🎨 하이라이트: "${currentHighlightKeyword}"`
+                : '📄 원본 PDF';
+
+            viewerContent.innerHTML = `
+                <div class="unified-viewer-toolbar">
+                    <button onclick="closePDFViewer()">✖ 닫기</button>
+                    <button onclick="toggleViewMode()" title="보기 모드 전환">
+                        ${currentPDFMode === 'original' ? '🎨 하이라이트' : '📄 원본'}
+                    </button>
+                    <button onclick="zoomInUnified()">🔍+ 확대</button>
+                    <button onclick="zoomOutUnified()">🔍- 축소</button>
+                    <button onclick="openPDFInNewTab('${filename}', ${targetPage})">🔗 새 탭</button>
+                    <div class="viewer-info">${modeInfo} - ${filename}</div>
+                </div>
+
+                <div class="unified-pdf-container" style="height: calc(100% - 60px); background: #ffffff; overflow-y: auto;">
+                    <div class="page-navigation" style="position: sticky; top: 0; background: #ffffff; padding: 10px; border-bottom: 1px solid #e2e8f0; z-index: 10;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <button onclick="goToPage(${Math.max(1, targetPage - 1)})" ${targetPage <= 1 ? 'disabled' : ''}>◀ 이전</button>
+                            <span>페이지 ${targetPage} / ${totalPages}</span>
+                            <button onclick="goToPage(${Math.min(totalPages, targetPage + 1)})" ${targetPage >= totalPages ? 'disabled' : ''}>다음 ▶</button>
+                        </div>
+                    </div>
+
+                    <div id="pdfPageContent" style="text-align: center; padding: 20px;">
+                        <div class="loading-spinner" style="margin: 50px auto;"></div>
+                        <p>페이지를 로딩 중...</p>
+                    </div>
+                </div>
+            `;
+
+            // 페이지 로드
+            loadPDFPage(filename, targetPage);
+        }
+
+        // PDF 페이지 로드 함수
+        async function loadPDFPage(filename, page) {
+            const pageContent = document.getElementById('pdfPageContent');
+            const encodedFilename = encodeURIComponent(filename);
+
+            try {
+                let imageUrl;
+                if (currentPDFMode === 'highlight' && currentHighlightKeyword) {
+                    imageUrl = `${API_BASE_URL}/api/pdf-highlight/${encodedFilename}/${page}/${encodeURIComponent(currentHighlightKeyword)}`;
+                } else {
+                    imageUrl = `${API_BASE_URL}/api/pdf-page-image/${encodedFilename}/${page}`;
+                }
+
+                const img = new Image();
+                img.onload = () => {
+                    pageContent.innerHTML = `
+                        <img id="currentPageImage"
+                             src="${imageUrl}"
+                             alt="PDF 페이지 ${page}"
+                             style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #ffffff; transform: scale(${currentPDFZoom});"
+                             onclick="toggleZoom()">
+                        ${currentPDFMode === 'highlight' ?
+                            `<p style="margin-top: 15px; color: #718096; font-size: 0.9rem;">
+                                💡 "${currentHighlightKeyword}" 키워드가 노란색으로 하이라이트됩니다
+                            </p>` : ''}
+                    `;
+                };
+
+                img.onerror = () => {
+                    pageContent.innerHTML = `
+                        <div style="padding: 40px; color: #e53e3e;">
+                            <div style="font-size: 3rem; margin-bottom: 20px;">⚠️</div>
+                            <h3>페이지 로드 실패</h3>
+                            <p>페이지 ${page}를 불러올 수 없습니다.</p>
+                            <button onclick="loadPDFPage('${filename}', ${page})" style="margin-top: 15px; padding: 8px 16px; background: #4fd1c7; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                🔄 다시 시도
+                            </button>
+                        </div>
+                    `;
+                };
+
+                img.src = imageUrl;
+
+            } catch (error) {
+                console.error('페이지 로드 오류:', error);
+                pageContent.innerHTML = `
+                    <div style="padding: 40px; color: #e53e3e;">
+                        <h3>로드 오류</h3>
+                        <p>페이지 로드 중 오류가 발생했습니다.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 페이지 이동 함수
+        function goToPage(page) {
+            if (!currentPDFInfo || page < 1 || page > currentPDFInfo.total_pages) return;
+
+            loadPDFPage(currentPDFInfo.filename, page);
+
+            // 내비게이션 업데이트
+            const navigation = document.querySelector('.page-navigation div');
+            if (navigation) {
+                navigation.innerHTML = `
+                    <button onclick="goToPage(${Math.max(1, page - 1)})" ${page <= 1 ? 'disabled' : ''}>◀ 이전</button>
+                    <span>페이지 ${page} / ${currentPDFInfo.total_pages}</span>
+                    <button onclick="goToPage(${Math.min(currentPDFInfo.total_pages, page + 1)})" ${page >= currentPDFInfo.total_pages ? 'disabled' : ''}>다음 ▶</button>
+                `;
+            }
+        }
+
+        // 보기 모드 전환
+        function toggleViewMode() {
+            if (!currentPDFInfo) return;
+
+            currentPDFMode = currentPDFMode === 'original' ? 'highlight' : 'original';
+
+            // 현재 페이지 번호 유지
+            const currentPageMatch = document.querySelector('.page-navigation span')?.textContent.match(/페이지 (\d+)/);
+            const currentPage = currentPageMatch ? parseInt(currentPageMatch[1]) : 1;
+
+            showUnifiedViewer(currentPDFInfo.filename, currentPage);
+        }
+
+        // 확대/축소 함수
+        function zoomInUnified() {
+            currentPDFZoom = Math.min(3.0, currentPDFZoom + 0.2);
+            const img = document.getElementById('currentPageImage');
+            if (img) {
+                img.style.transform = `scale(${currentPDFZoom})`;
+            }
+        }
+
+        function zoomOutUnified() {
+            currentPDFZoom = Math.max(0.5, currentPDFZoom - 0.2);
+            const img = document.getElementById('currentPageImage');
+            if (img) {
+                img.style.transform = `scale(${currentPDFZoom})`;
+            }
+        }
+
+        // 이미지 클릭으로 줌 토글
+        function toggleZoom() {
+            currentPDFZoom = currentPDFZoom === 1.0 ? 1.5 : 1.0;
+            const img = document.getElementById('currentPageImage');
+            if (img) {
+                img.style.transform = `scale(${currentPDFZoom})`;
+            }
+        }
+
+        // 이미지 새 탭에서 열기 함수
+        function openImageInNewTab(imageSrc) {
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>PDF 원본 이미지</title>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 20px;
+                            background: #f5f5f5;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                            font-family: Arial, sans-serif;
+                        }
+                        img {
+                            max-width: 95%;
+                            max-height: 95vh;
+                            border: 2px solid #ddd;
+                            border-radius: 8px;
+                            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+                            background: white;
+                        }
+                        .toolbar {
+                            position: fixed;
+                            top: 10px;
+                            right: 10px;
+                            background: rgba(0,0,0,0.8);
+                            padding: 10px;
+                            border-radius: 8px;
+                            color: white;
+                            font-size: 14px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="toolbar">
+                        💡 마우스 휠로 확대/축소 가능
+                    </div>
+                    <img src="${imageSrc}" alt="PDF 원본 이미지" ondblclick="this.style.transform = this.style.transform ? '' : 'scale(1.5)'">
+                </body>
+                </html>
+            `);
+            newWindow.document.close();
+        }
+
+        // 실시간 검색 이벤트 리스너
+        document.getElementById('searchInput').addEventListener('input', handleRealTimeSearch);
+
+        // Enter 키로 즉시 검색
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                clearTimeout(searchTimeout); // 타이머 취소하고 즉시 검색
+                performSearch();
+            }
+        });
+
+        // 페이지 로드 시 FastAPI 서버 상태 확인 (재시도 로직 추가)
+        window.addEventListener('load', function() {
+            const maxRetries = 5;
+            let attempt = 0;
+            const resultsDiv = document.getElementById('results');
+
+            function checkServerStatus() {
+                // 초기에만 메시지 표시
+                if (attempt === 0) {
+                     resultsDiv.innerHTML = `
+                        <div class="error-message" style="background-color: rgba(59, 130, 246, 0.1); color: #93c5fd; border-color: rgba(59, 130, 246, 0.2);">
+                            ⏳ 검색 서버에 연결 중...
+                        </div>
+                    `;
+                }
+
+                fetch(`${API_BASE_URL}/health`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server returned status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        resultsDiv.innerHTML = `
+                             <div class="error-message" style="background-color: rgba(16, 185, 129, 0.1); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.2);">
+                                ✅ 검색 서버에 성공적으로 연결되었습니다.
+                            </div>
+                        `;
+                        // 2초 후에 메시지 지우기
+                        setTimeout(() => {
+                           if (resultsDiv.querySelector('.error-message')) {
+                                resultsDiv.innerHTML = '';
+                           }
+                        }, 2000);
+                    })
+                    .catch(error => {
+                        attempt++;
+
+                        if (attempt < maxRetries) {
+                            const delay = Math.pow(2, attempt) * 1000; // 2, 4, 8, 16초
+                             resultsDiv.innerHTML = `
+                                <div class="error-message" style="background-color: rgba(245, 158, 11, 0.1); color: #fcd34d; border-color: rgba(245, 158, 11, 0.2);">
+                                    ⏳ 검색 서버 연결 재시도 중... (${attempt}/${maxRetries})<br>
+                                    서버 시작을 기다리고 있습니다. 약 ${delay/1000}초 후 다시 시도합니다.
+                                </div>
+                            `;
+                            setTimeout(checkServerStatus, delay);
+                        } else {
+                            resultsDiv.innerHTML = `
+                                <div class="error-message">
+                                    ❌ 검색 서버에 연결할 수 없습니다.<br>
+                                    FastAPI 서버(${API_BASE_URL})가 실행 중인지, 방화벽에 의해 차단되지 않았는지 확인해주세요.
+                                </div>
+                            `;
+                        }
+                    });
+            }
+
+            checkServerStatus();
+        });
+    </script>
+</body>
+</html>

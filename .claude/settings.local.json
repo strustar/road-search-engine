@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(start /B python:*)",
+      "Bash(curl:*)",
+      "mcp__puppeteer__puppeteer_navigate",
+      "mcp__puppeteer__puppeteer_screenshot",
+      "Bash(streamlit run:*)",
+      "Bash(pip install:*)",
+      "mcp__puppeteer__puppeteer_fill",
+      "mcp__puppeteer__puppeteer_click",
+      "mcp__puppeteer__puppeteer_evaluate",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(tasklist)",
+      "Read(//d/Claude_Code/**)",
+      "Bash(dir:*)",
+      "Bash(where:*)",
+      "Bash(pip show:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(timeout:*)",
+      "Bash(ls:*)",
+      "Bash(start innovative_search_app.html)",
+      "Bash(cd:*)",
+      "WebSearch"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

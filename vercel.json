@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "innovative_search_app.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/innovative_search_app.html"
+    }
+  ],
+  "env": {
+    "API_URL": "https://your-railway-app.railway.app"
+  }
+}

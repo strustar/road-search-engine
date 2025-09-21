@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  road-search-api:
+    build: .
+    container_name: road-search-system
+    ports:
+      - "8080:8080"
+    volumes:
+      # 벡터 데이터베이스 유지
+      - ./vector_store:/app/vector_store
+      # 이미지 캐시 유지
+      - ./image_cache:/app/image_cache
+      - ./page_images_cache:/app/page_images_cache
+      # PDF 문서들
+      - ./도로설계요령(2020):/app/도로설계요령(2020)
+      - ./실무지침(2020):/app/실무지침(2020)
+      # 모델 캐시
+      - ./models:/app/models
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: road-search-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./innovative_search_app.html:/usr/share/nginx/html/innovative_search_app.html
+      - ./static:/usr/share/nginx/html/static
+    depends_on:
+      - road-search-api
+    restart: unless-stopped
+
+networks:
+  default:
+    name: road-search-network
