@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Python 의존성 파일 복사 및 설치
-COPY requirements_production.txt .
-RUN pip install --no-cache-dir -r requirements_production.txt
+COPY requirements_railway.txt .
+RUN pip install --no-cache-dir -r requirements_railway.txt
 
 # 프로젝트 파일들 복사
 COPY . .
