@@ -13,11 +13,15 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Python 의존성 파일 복사 및 설치
-COPY requirements_railway.txt .
-RUN pip install --no-cache-dir -r requirements_railway.txt
+COPY requirements_minimal.txt .
+RUN pip install --no-cache-dir -r requirements_minimal.txt
 
-# 프로젝트 파일들 복사
-COPY . .
+# 프로젝트 파일들 복사 (PDF 파일 제외)
+COPY fastapi_server.py .
+COPY preprocessing/ ./preprocessing/
+COPY rag/ ./rag/
+COPY vector_store/ ./vector_store/
+COPY models/ ./models/
 
 # 필요한 디렉토리 생성
 RUN mkdir -p image_cache page_images_cache vector_store

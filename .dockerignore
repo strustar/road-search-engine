@@ -1,66 +1,46 @@
-# Docker 빌드 시 제외할 파일들
+# PDF 파일들 제외 (용량이 너무 큼)
+도로설계요령(2020)/
+실무지침(2020)/
+*.pdf
+
+# 개발/테스트 파일들 제외
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
+*.pyc
+*.pyo
+*.pyd
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# 가상환경
-venv/
 env/
-ENV/
-
-# IDE
-.vscode/
+venv/
+.venv/
+.env
 .idea/
-*.swp
-*.swo
-
-# 로그 파일
+.vscode/
 *.log
-logs/
-
-# 임시 파일
 *.tmp
 *.temp
 
-# Git
+# 이미지 캐시 제외
+image_cache/
+page_images_cache/
+*.png
+*.jpg
+*.jpeg
+
+# Git 관련
 .git/
 .gitignore
+README*.md
+*.md
 
-# Docker
+# 배포 관련
 Dockerfile
 docker-compose.yml
 .dockerignore
+deploy.sh
+deploy.bat
+start_production.*
 
-# 배포 가이드
-*.md
-
-# 테스트 파일
-test_*
-*_test.py
-
-# 아카이브 (이미 삭제됨)
+# 아카이브
 archive/
-
-# 백업 파일
-*_backup.*
-*_old.*
-
-# 이미지 복사본 (이미 삭제됨)
-image copy*
+temp/
+tests/
