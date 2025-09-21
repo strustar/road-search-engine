@@ -20,7 +20,6 @@ RUN pip install --no-cache-dir -r requirements_minimal.txt
 COPY fastapi_server.py .
 COPY preprocessing/ ./preprocessing/
 COPY rag/ ./rag/
-COPY vector_store/ ./vector_store/
 
 # 필요한 디렉토리 생성
 RUN mkdir -p image_cache page_images_cache vector_store
