@@ -24,16 +24,12 @@ COPY rag/ ./rag/
 # 필요한 디렉토리 생성
 RUN mkdir -p image_cache page_images_cache vector_store
 
-# 포트 노출
-EXPOSE 8080
+# 포트 노출 (Railway가 자동으로 PORT 환경변수 설정)
+EXPOSE $PORT
 
 # 환경 변수 설정
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-# 헬스체크 추가
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
-
-# 애플리케이션 실행
-CMD ["uvicorn", "fastapi_server:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]
+# 애플리케이션 실행 (Railway 호환)
+CMD uvicorn fastapi_server:app --host 0.0.0.0 --port $PORT --workers 1
