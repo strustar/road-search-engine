@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir -r requirements_minimal.txt
 
 # 프로젝트 파일들 복사 (PDF 파일 제외)
 COPY fastapi_server.py .
+COPY pdf_image_renderer.py .
 COPY preprocessing/ ./preprocessing/
 COPY rag/ ./rag/
 
