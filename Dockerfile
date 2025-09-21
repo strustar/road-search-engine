@@ -21,7 +21,6 @@ COPY fastapi_server.py .
 COPY preprocessing/ ./preprocessing/
 COPY rag/ ./rag/
 COPY vector_store/ ./vector_store/
-COPY models/ ./models/
 
 # 필요한 디렉토리 생성
 RUN mkdir -p image_cache page_images_cache vector_store
