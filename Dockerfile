@@ -32,5 +32,5 @@ ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8080
 
-# 애플리케이션 실행 (테스트 서버)
-CMD uvicorn test_server:app --host 0.0.0.0 --port 8080 --workers 1
+# 애플리케이션 실행 (원래 FastAPI 서버)
+CMD uvicorn fastapi_server:app --host 0.0.0.0 --port 8080 --workers 1
