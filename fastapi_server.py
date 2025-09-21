@@ -20,8 +20,8 @@ import io
 import re
 
 # 로컬 모듈 import
-from rag.embedding_engine import KoreanEmbeddingEngine
-from rag.vector_database import VectorDatabase
+# from rag.embedding_engine import KoreanEmbeddingEngine  # sentence-transformers 제거로 비활성화
+# from rag.vector_database import VectorDatabase  # 임베딩 엔진 의존성으로 비활성화
 from pdf_image_renderer import PDFImageRenderer
 
 # 로깅 설정
@@ -45,8 +45,8 @@ app.add_middleware(
 )
 
 # 전역 변수로 검색 엔진 관리
-embedding_engine = None
-vector_db = None
+# embedding_engine = None  # 비활성화
+# vector_db = None  # 비활성화
 pdf_renderer = None
 
 # ======================== 고급 텍스트 추출 및 스코어링 함수 ========================
@@ -276,27 +276,13 @@ class ImageResponse(BaseModel):
 @app.on_event("startup")
 async def startup_event():
     """서버 시작시 벡터 DB 및 PDF 렌더러 로드"""
-    global embedding_engine, vector_db, pdf_renderer
+    global pdf_renderer
 
     try:
         logger.info("벡터 검색 시스템 초기화 중...")
 
-        # 임베딩 엔진 초기화
-        embedding_engine = KoreanEmbeddingEngine()
-
-        # 벡터 DB 초기화 및 로드
-        vector_db = VectorDatabase(
-            dimension=embedding_engine.dimension,
-            index_type="cosine",
-            storage_dir="./vector_store"
-        )
-
-        # 기존 DB 로드
-        if vector_db.load_database("road_design_db"):
-            stats = vector_db.get_stats()
-            logger.info(f"벡터 DB 로드 완료: {stats['total_documents']}개 문서")
-        else:
-            logger.warning("벡터 DB를 찾을 수 없습니다. process_documents_auto.py를 먼저 실행하세요.")
+        # 임베딩 엔진 및 벡터 DB 비활성화 (sentence-transformers 제거로 인해)
+        logger.info("벡터 검색 기능 비활성화 (키워드 검색만 지원)")
 
         # PDF 이미지 렌더러 초기화
         pdf_renderer = PDFImageRenderer(
