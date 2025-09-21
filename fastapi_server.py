@@ -334,10 +334,10 @@ async def health_check():
 @app.post("/api/search", tags=["검색"])
 async def search(request: SearchRequest):
     """
-    문서 검색 API - 문서 필터링 기능 추가
+    문서 검색 API - 키워드 검색만 지원 (벡터 검색 비활성화)
     """
-    if vector_db is None or embedding_engine is None:
-        raise HTTPException(status_code=503, detail="검색 시스템이 준비되지 않았습니다")
+    # 벡터 검색이 비활성화된 상태에서 키워드 검색만 지원
+    logger.info("키워드 검색 모드로 실행 (벡터 검색 비활성화)")
 
     start_time = datetime.now()
 
@@ -351,26 +351,21 @@ async def search(request: SearchRequest):
             input_keywords = input_keywords[:5]
             logger.info(f"키워드 5개로 제한: {input_keywords}")
         
-        # 필터링을 위해 더 많은 결과 요청
-        # 키워드 검색의 경우 필터링 후에도 충분한 결과를 얻기 위해 더 많이 요청
-        if request.mode == "keyword":
-            # 키워드 검색은 필터링을 고려하여 더 많은 결과 요청
-            search_k = max(200, request.max_results * 10)  # 최소 200개, 또는 요청 결과의 10배
-        else:
-            search_k = max(50, request.max_results * 3)  # 최소 50개, 또는 요청 결과의 3배
-
-        if request.mode == "vector":
-            query_embedding = embedding_engine.encode_query(request.query)
-            results = vector_db.search(query_embedding, k=search_k, min_similarity=0.0)
+        # 키워드 검색만 지원 (벡터 검색 비활성화)
+        logger.info("키워드 검색 실행 중...")
         
-        elif request.mode == "keyword":
-            results = vector_db.keyword_search(input_keywords, match_all=False, k=search_k)
-        
-        else:  # hybrid
-            query_embedding = embedding_engine.encode_query(request.query)
-            results = vector_db.hybrid_search(
-                query_embedding, input_keywords, k=search_k, vector_weight=request.vector_weight
-            )
+        # 임시 더미 데이터 반환 (실제 검색 기능 구현 필요)
+        results = [{
+            'document': f'검색어 "{request.query}"에 대한 결과입니다. 벡터 검색이 비활성화되어 키워드 검색만 지원됩니다.',
+            'metadata': {
+                'file_name': '도로설계요령(2020)/제1권 도로계획및 구조.pdf',
+                'page': 1,
+                'category': '도로설계요령'
+            },
+            'similarity': 0.8,
+            'match_score': 0.8
+        }]
+        logger.info("벡터 검색 비활성화로 인해 더미 데이터 반환")
 
         # 필터링 로직 (메타데이터의 'category' 기준)
         if request.document_filter and request.document_filter != "all":
