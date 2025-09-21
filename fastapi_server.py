@@ -313,15 +313,16 @@ async def root():
 
 @app.get("/health", tags=["기본"])
 async def health_check():
-    """헬스 체크 엔드포인트"""
-    if vector_db is None or embedding_engine is None:
-        raise HTTPException(status_code=503, detail="서비스 준비되지 않음")
-
+    """헬스 체크 엔드포인트 (키워드 검색만 지원)"""
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "vector_db_loaded": vector_db.index.ntotal > 0,
-        "embedding_engine_ready": embedding_engine.model is not None
+        "services": {
+            "keyword_search": "available",
+            "pdf_rendering": "available",
+            "vector_search": "disabled"
+        },
+        "message": "키워드 검색 서비스만 지원됩니다"
     }
 
 @app.post("/api/search", tags=["검색"])
