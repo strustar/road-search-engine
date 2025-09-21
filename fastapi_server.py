@@ -38,9 +38,15 @@ app = FastAPI(
 # CORS 설정 (프론트엔드 연동용)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 프로덕션에서는 특정 도메인만 허용
+    allow_origins=[
+        "https://road-search-engine.vercel.app",
+        "https://road-search-engine-git-main-strustar.vercel.app",
+        "https://*.vercel.app",
+        "http://localhost:3000",
+        "http://localhost:5500"
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
